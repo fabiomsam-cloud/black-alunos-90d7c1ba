@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>SOU · Black Alunos 27/10</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --page:#f5f6f8; --surface:#ffffff; --surface-2:#f2f4f7;
+  --ink:#0f172a; --ink-2:#334155; --muted:#64748b;
+  --grid:#e5e8ee; --ring:rgba(15,23,42,.08);
+  --gold:#b7791f; --gold-soft:rgba(183,121,31,.12);
+  --blue:#2563eb; --green:#15803d; --red:#dc2626; --amber:#b45309; --black:#111827; --cyan:#009BBE;
+  --disp:"Bricolage Grotesque",sans-serif; --body:"IBM Plex Sans",system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--page);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.45;min-height:100vh;position:relative}
+body::before{content:"";position:absolute;left:0;right:0;top:0;height:520px;pointer-events:none;z-index:0;
+  background:radial-gradient(900px 380px at 85% -20%, rgba(0,155,190,.10), transparent 60%),
+             radial-gradient(700px 320px at -5% 0%, rgba(17,24,39,.06), transparent 55%)}
+.wrap{position:relative;z-index:1;max-width:1380px;margin:0 auto;padding:26px 30px 90px}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:16px}
+.brand h1{font-family:var(--disp);font-weight:800;font-size:31px;letter-spacing:-.6px;line-height:1.02}
+.brand h1 em{font-style:normal;color:var(--cyan)}
+.brand .sub{color:var(--muted);font-size:12.5px;margin-top:7px;letter-spacing:.2px}
+.brand .sub b{color:var(--ink-2);font-weight:600}
+.stamp{text-align:right;font-size:12px;color:var(--muted)}
+.stamp .clock{font-family:var(--disp);font-weight:700;font-size:20px;color:var(--ink-2);letter-spacing:-.2px}
+.stamp .upd b{color:var(--ink-2)}
+.card{background:var(--surface);border:1px solid var(--ring);border-radius:14px;padding:20px 22px;position:relative;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,.04);margin-bottom:12px}
+.card h2{font-family:var(--disp);font-weight:700;font-size:17px;letter-spacing:-.2px}
+.card .hint{color:var(--muted);font-size:12px;margin-top:3px}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.grid{display:grid;gap:12px;margin-bottom:12px}
+.g-two{grid-template-columns:1.35fr 1fr}
+@media(max-width:1080px){.g-two{grid-template-columns:1fr}}
+.grid .card{margin-bottom:0}
+/* rail */
+.rail{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 14px}
+.cd{background:var(--surface);border:1px solid var(--ring);border-radius:12px;padding:9px 14px;display:flex;align-items:baseline;gap:8px}
+.cd .n{font-family:var(--disp);font-weight:800;font-size:21px;color:var(--cyan);letter-spacing:-.4px}
+.cd .n.now{color:var(--green)}
+.cd .l{font-size:11.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.cd.live{border-color:rgba(0,155,190,.5);background:linear-gradient(140deg,#e9f8fb 0%,var(--surface) 60%)}
+/* kpis */
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+@media(max-width:1100px){.kpis{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:640px){.kpis{grid-template-columns:1fr 1fr}}
+.tk{background:var(--surface-2);border-radius:12px;padding:13px 15px}
+.tk .l{color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+.tk .v{font-family:var(--disp);font-weight:800;font-size:24px;margin-top:5px;letter-spacing:-.4px}
+.tk .s{font-size:11.5px;color:var(--muted);margin-top:3px}
+.tk.hi .v{color:var(--cyan)} .tk.ok .v{color:var(--green)}
+/* tabela */
+.rs-wrap{overflow-x:auto}
+.rs{width:100%;border-collapse:collapse;font-size:12.5px;min-width:720px}
+.rs th{text-align:right;color:var(--muted);font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:6px 8px;border-bottom:1px solid var(--grid);white-space:nowrap}
+.rs th:first-child,.rs td:first-child{text-align:left}
+.rs td{padding:8px;border-bottom:1px solid var(--grid);text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-2);white-space:nowrap}
+.rs td:first-child{color:var(--ink);font-weight:600}
+.rs tr:last-child td{border-bottom:0}
+.rs tr.tot td{border-top:2px solid var(--grid);font-weight:700;color:var(--ink)}
+.rs td small{color:var(--muted);font-size:10.5px;font-weight:400}
+.rs td.ok{color:var(--green);font-weight:600} .rs td.mid{color:var(--amber);font-weight:600} .rs td.bad{color:var(--red);font-weight:600}
+.rs td.dim{color:var(--muted)}
+.bar{display:inline-block;height:9px;border-radius:4px;background:var(--cyan);vertical-align:middle;margin-right:6px;min-width:2px}
+.bdg{font-size:10px;padding:2px 7px;border-radius:6px;font-weight:700;white-space:nowrap;letter-spacing:.04em}
+.bdg.running{background:rgba(21,128,61,.15);color:#15803d}
+.bdg.scheduled{background:rgba(37,99,235,.14);color:#1d4ed8}
+.bdg.done{background:rgba(15,23,42,.08);color:var(--muted)}
+.bdg.draft{background:rgba(180,83,9,.14);color:#92400e}
+.bdg.paused{background:rgba(220,38,38,.14);color:#b42318}
+.bdg.meta{background:rgba(15,23,42,.06);color:var(--muted);font-weight:600}
+.bdg.disparo{background:rgba(0,155,190,.14);color:#0b7a94}
+.bdg.fora{background:rgba(220,38,38,.12);color:#b42318}
+/* dias */
+.vday{display:flex;align-items:flex-end;gap:5px;height:120px;margin-top:10px}
+.vday .vb{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:3px;min-width:0}
+.vday .stack{width:100%;max-width:38px;display:flex;flex-direction:column-reverse;justify-content:flex-start}
+.vday .seg{width:100%;min-height:1px}
+.vday .seg.disparo{background:var(--cyan)} .vday .seg.base_sem_disparo{background:#8fd3e2} .vday .seg.organico{background:#cbd5e1}
+.vday .dl{font-size:9.5px;color:var(--muted);white-space:nowrap}
+.vday .dv{font-size:10px;color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.note{font-size:11.5px;color:var(--muted);margin-top:12px}
+.all-ok{display:flex;align-items:center;gap:12px;padding:14px;border-radius:12px;background:var(--surface-2);color:var(--muted);font-size:13px}
+.err{background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.4);border-radius:12px;padding:16px;color:#b42318;font-size:13px;margin-bottom:12px;display:none}
+.sync{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--muted)}
+.sync b{color:var(--ink-2);font-weight:600}
+.sync .late{color:#b42318}
+footer{color:var(--muted);font-size:11.5px;margin-top:22px;text-align:center}
+@media(max-width:640px){.wrap{padding:18px 14px 70px}.brand h1{font-size:24px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="brand">
+    <h1>BLACK · <em>ALUNOS</em> · 27/10</h1>
+    <div class="sub">Encontro ao vivo só para alunos · <b>terça, 27/10, 20h de Brasília (19h em Manaus)</b> · YouTube · métrica mestra: <b>entrada no grupo</b> · disparos em vídeo pela Anne (agente black_alunos) a partir de <b>13/10</b></div>
+  </div>
+  <div class="stamp">
+    <div class="clock" id="clock">—</div>
+    <div class="upd">último dado: <b id="upd">carregando…</b></div>
+    <div>fuso America/Manaus · grupo em tempo real · disparos a cada 5 min</div>
+  </div>
+</header>
+
+<div class="rail" id="rail"></div>
+<div class="err" id="err"></div>
+
+<!-- KPIs -->
+<div class="card">
+  <div class="card-head">
+    <div><h2>Resumo</h2><div class="hint">Base das 8 camadas de disparo (ângulos 1 a 7a e 8) → enviados → responderam → entraram no grupo · check-ins do formulário de presença</div></div>
+  </div>
+  <div class="kpis">
+    <div class="tk"><div class="l">Base de disparo</div><div class="v" id="k-base">—</div><div class="s" id="k-base-s">alunos · telefones</div></div>
+    <div class="tk"><div class="l">Enviados</div><div class="v" id="k-env">—</div><div class="s" id="k-env-s">—</div></div>
+    <div class="tk"><div class="l">Responderam</div><div class="v" id="k-resp">—</div><div class="s" id="k-resp-s">—</div></div>
+    <div class="tk hi"><div class="l">Entraram no grupo</div><div class="v" id="k-grupo">—</div><div class="s" id="k-grupo-s">—</div></div>
+    <div class="tk ok"><div class="l">Grupo hoje</div><div class="v" id="k-ativos">—</div><div class="s" id="k-ativos-s">—</div></div>
+    <div class="tk"><div class="l">Check-ins</div><div class="v" id="k-chk">—</div><div class="s" id="k-chk-s">formulário de presença</div></div>
+  </div>
+</div>
+
+<div class="grid g-two">
+  <!-- FUNIL POR ÂNGULO -->
+  <div class="card">
+    <div class="card-head">
+      <div><h2>Funil por ângulo de mensagem</h2><div class="hint">Cada aluno está em um único ângulo · telefones únicos · entrada no grupo atribuída ao disparo quando acontece depois do envio</div></div>
+    </div>
+    <div class="rs-wrap"><table class="rs" id="funil"></table></div>
+    <div class="note">7b e 9 vão só para público da Meta (sem disparo); D/X ficam fora de tudo. A barra é a % de entrada no grupo sobre os enviados.</div>
+  </div>
+
+  <!-- ENTRADAS POR DIA -->
+  <div class="card">
+    <div class="card-head">
+      <div><h2>Entradas no grupo por dia</h2><div class="hint">Webhook da Sendflow em tempo real · dia calendário de Manaus</div></div>
+    </div>
+    <div class="vday" id="vday"></div>
+    <div class="legend"><span><i style="background:var(--cyan)"></i>via disparo</span><span><i style="background:#8fd3e2"></i>da base, sem disparo</span><span><i style="background:#cbd5e1"></i>fora da base (orgânico)</span></div>
+    <div class="note" id="saidas-note"></div>
+  </div>
+</div>
+
+<!-- CAMPANHAS -->
+<div class="card">
+  <div class="card-head">
+    <div><h2>Campanhas de disparo</h2><div class="hint">Espelho das campanhas [BLACK][ALUNOS] da Anne · responderam = falou com a Anne depois do envio · grupo = entrou depois do envio desta campanha</div></div>
+  </div>
+  <div id="campanhas"></div>
+</div>
+
+<!-- CHECK-INS -->
+<div class="card">
+  <div class="card-head">
+    <div><h2>Check-in de presença (Typeform)</h2><div class="hint">Respostas do formulário obrigatório do grupo, por dia e por ângulo de origem</div></div>
+  </div>
+  <div id="checkins"></div>
+</div>
+
+<div class="card">
+  <div class="card-head"><div><h2>Saúde dos dados</h2><div class="hint">Última atualização de cada fonte</div></div></div>
+  <div class="sync" id="sync"></div>
+</div>
+
+<footer>BLACK · A Revolução do Estudo · alunos · Sou Concurseiro e Vou Passar · painel interno</footer>
+</div>
+
+<script>
+const API  = "https://dqpxugdhlgafvddavzzp.supabase.co/functions/v1/dashboard-black-alunos";
+const ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxcHh1Z2RobGdhZnZkZGF2enpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxODQ1NTMsImV4cCI6MjA5Nzc2MDU1M30.nUhYPO3oLUZEXgQCDlRtL-Jawi0nr0l1Z7_z5ecEXvc";
+const K = new URLSearchParams(location.search).get("k") || "";
+const $ = id => document.getElementById(id);
+const fmtN = v => Math.round(v||0).toLocaleString("pt-BR");
+const pct = (a,b) => b>0 ? a/b : null;
+const fmtPct = p => p==null ? "—" : (p*100 < 10 ? (p*100).toFixed(1).replace(".",",") : Math.round(p*100)) + "%";
+const esc = s => String(s??"").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ddmm = iso => iso.slice(8,10) + "/" + iso.slice(5,7);
+const hora = ts => ts ? new Date(ts).toLocaleString("pt-BR",{timeZone:"America/Manaus",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}).replace(",", " ·") : "—";
+const hojeManaus = () => new Date(Date.now() - 4*3600e3).toISOString().slice(0,10);
+const ANG_NOME = {"1":"Já tem Play Passei","2":"Perguntou por outros produtos","3":"Dor de método declarada","4":"Pediu ferramenta / celular",
+  "5":"Turma aberta, sem sinal","6":"Estudou >25% e expirou","7a":"Comprou 2025-26 e não abriu","7b":"Antigo que não abriu","8":"Só low ticket",
+  "9":"Sem sinal","D":"Fora: aprovado/desistiu/reembolso","X":"Fora: não contatar"};
+const ORDEM = ["1","2","4","3","6","5","7a","8","7b","9","D","X"];
+
+function relogio(){
+  $("clock").textContent = new Date().toLocaleString("pt-BR",{timeZone:"America/Manaus", day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit"}).replace(",", " ·");
+}
+relogio(); setInterval(relogio, 30000);
+
+let RAW = null;
+async function load(){
+  try{
+    const r = await fetch(API + "?k=" + encodeURIComponent(K), {headers:{Authorization:"Bearer "+ANON, apikey:ANON}});
+    const d = await r.json();
+    if (d.error) throw new Error(d.error);
+    RAW = d;
+    $("err").style.display = "none";
+    $("upd").textContent = hora(d.generated_at);
+    renderAll(d);
+  }catch(e){
+    $("err").style.display = "block";
+    $("err").textContent = "Falha ao carregar os dados: " + e.message + (K ? "" : " — confira o token ?k= na URL.");
+  }
+}
+
+function renderRail(d){
+  const live = Date.parse(d.live_at); const now = Date.now();
+  const diff = live - now;
+  const dias = Math.floor(diff/86400e3), horas = Math.floor((diff%86400e3)/3600e3);
+  const h = hojeManaus();
+  const atéDisparo = Math.round((Date.parse(d.primeiro_disparo) - Date.parse(h))/86400e3);
+  let html = "";
+  if (diff > 0) html += `<div class="cd live"><span class="n">${dias}d ${horas}h</span><span class="l">para a live · ter 27/10 · 20h BRT</span></div>`;
+  else if (diff > -4*3600e3) html += `<div class="cd live"><span class="n now">AO VIVO</span><span class="l">live em andamento</span></div>`;
+  else html += `<div class="cd"><span class="n">feita</span><span class="l">live de 27/10</span></div>`;
+  if (atéDisparo > 0) html += `<div class="cd"><span class="n">${atéDisparo}d</span><span class="l">para o 1º disparo · ter 13/10</span></div>`;
+  else html += `<div class="cd"><span class="n now">${Math.abs(atéDisparo)+1}º dia</span><span class="l">de disparos (desde 13/10)</span></div>`;
+  html += `<div class="cd"><span class="n">${fmtN(d.grupo?.ativos)}</span><span class="l">no grupo agora</span></div>`;
+  $("rail").innerHTML = html;
+}
+
+function renderAll(d){
+  renderRail(d);
+  const base = Object.fromEntries((d.base||[]).map(b => [b.angulo, b]));
+  const pa = Object.fromEntries((d.por_angulo||[]).map(a => [a.angulo, a]));
+  const disp = ORDEM.filter(a => (base[a]?.canal) === "disparo");
+  const sum = (arr, f) => arr.reduce((s,a) => s + (f(a)||0), 0);
+  const baseAl = sum(disp, a => base[a]?.alunos), baseFo = sum(disp, a => base[a]?.fones);
+  const env = sum(disp, a => pa[a]?.enviados), resp = sum(disp, a => pa[a]?.respostas), gr = sum(disp, a => pa[a]?.grupo);
+  $("k-base").textContent = fmtN(baseAl); $("k-base-s").textContent = fmtN(baseFo) + " telefones únicos";
+  $("k-env").textContent = fmtN(env); $("k-env-s").textContent = env ? fmtPct(pct(env, baseFo)) + " da base" : "disparos começam 13/10";
+  $("k-resp").textContent = fmtN(resp); $("k-resp-s").textContent = env ? fmtPct(pct(resp, env)) + " dos enviados" : "—";
+  $("k-grupo").textContent = fmtN(gr); $("k-grupo-s").textContent = env ? fmtPct(pct(gr, env)) + " dos enviados" : "da base de disparo";
+  $("k-ativos").textContent = fmtN(d.grupo?.ativos); $("k-ativos-s").textContent = `${fmtN(d.grupo?.da_base)} da base · ${fmtN(d.grupo?.organicos)} de fora · ${fmtN(d.grupo?.saidas)} saíram`;
+  $("k-chk").textContent = fmtN(d.checkins?.total);
+
+  // funil por ângulo
+  let rows = `<tr><th>Ângulo</th><th>Canal</th><th>Alunos</th><th>Telefones</th><th>Enviados</th><th>Responderam</th><th>% resp.</th><th>No grupo</th><th>% grupo</th></tr>`;
+  const maxP = Math.max(0.01, ...disp.map(a => pct(pa[a]?.grupo, pa[a]?.enviados) || 0));
+  for (const a of ORDEM){
+    const b = base[a]; if (!b) continue; const p = pa[a] || {};
+    const pg = pct(p.grupo, p.enviados), pr = pct(p.respostas, p.enviados);
+    const dim = b.canal !== "disparo" ? " dim" : "";
+    rows += `<tr><td>${esc(a)} · ${esc(ANG_NOME[a]||b.nome)}</td><td><span class="bdg ${b.canal}">${b.canal === "disparo" ? "Anne" : b.canal === "meta" ? "Meta" : "fora"}</span></td>
+      <td class="${dim}">${fmtN(b.alunos)}</td><td class="${dim}">${fmtN(b.fones)}</td>
+      <td>${b.canal === "disparo" ? fmtN(p.enviados) : "—"}</td><td>${b.canal === "disparo" ? fmtN(p.respostas) : "—"}</td><td>${b.canal === "disparo" ? fmtPct(pr) : "—"}</td>
+      <td>${fmtN(p.grupo)}</td><td>${b.canal === "disparo" && p.enviados ? `<span class="bar" style="width:${Math.round(60*(pg||0)/maxP)}px"></span>${fmtPct(pg)}` : (p.grupo ? "<small>sem disparo</small>" : "—")}</td></tr>`;
+  }
+  rows += `<tr class="tot"><td>Total das camadas de disparo</td><td></td><td>${fmtN(baseAl)}</td><td>${fmtN(baseFo)}</td><td>${fmtN(env)}</td><td>${fmtN(resp)}</td><td>${fmtPct(pct(resp,env))}</td><td>${fmtN(gr)}</td><td>${fmtPct(pct(gr,env))}</td></tr>`;
+  $("funil").innerHTML = rows;
+
+  // entradas por dia (últimos 14 dias com dado + hoje)
+  const porDia = {};
+  for (const e of (d.entradas_dia||[])) ((porDia[e.dia] ??= {}))[e.via] = e.n;
+  const saidas = Object.fromEntries((d.saidas_dia||[]).map(s => [s.dia, s.n]));
+  const dias = [...new Set([...Object.keys(porDia), hojeManaus()])].sort().slice(-16);
+  const maxD = Math.max(1, ...dias.map(x => Object.values(porDia[x]||{}).reduce((a,v)=>a+v,0)));
+  $("vday").innerHTML = dias.map(x => {
+    const v = porDia[x]||{}; const tot = Object.values(v).reduce((a,n)=>a+n,0);
+    const segs = ["organico","base_sem_disparo","disparo"].map(k => `<div class="seg ${k}" style="height:${Math.round(96*(v[k]||0)/maxD)}px" title="${k}: ${v[k]||0}"></div>`).join("");
+    return `<div class="vb"><div class="dv">${tot||""}</div><div class="stack">${segs}</div><div class="dl">${ddmm(x)}</div></div>`;
+  }).join("") || `<div class="all-ok">Sem entradas no grupo ainda.</div>`;
+  const totS = Object.values(saidas).reduce((a,n)=>a+n,0);
+  $("saidas-note").textContent = totS ? `Saídas do grupo: ${fmtN(totS)} no total (${Object.entries(saidas).slice(-3).map(([k,v]) => ddmm(k)+": "+v).join(" · ")}).` : "Nenhuma saída registrada.";
+
+  // campanhas
+  const camps = d.campanhas||[];
+  if (!camps.length) $("campanhas").innerHTML = `<div class="all-ok">Nenhuma campanha [BLACK][ALUNOS] criada ainda — o primeiro disparo está marcado para terça, 13/10.</div>`;
+  else {
+    let t = `<div class="rs-wrap"><table class="rs"><tr><th>Campanha</th><th>Status</th><th>Base</th><th>Enviados</th><th>Pendentes</th><th>Pulados</th><th>Falhas</th><th>Opt-out</th><th>Responderam</th><th>No grupo</th><th>% grupo</th><th>Início</th></tr>`;
+    for (const c of camps){
+      const pulados = (c.skipped_existing||0) + (c.skipped_optout||0);
+      t += `<tr><td title="${esc(c.template||"")}">${esc(c.name)}</td><td><span class="bdg ${esc(c.status)}">${esc(c.status)}</span></td>
+        <td>${fmtN(c.total)}</td><td>${fmtN(c.sent)}</td><td>${fmtN(c.pending)}</td><td>${fmtN(pulados)}</td><td class="${c.failed ? "bad" : ""}">${fmtN(c.failed)}</td>
+        <td>${fmtN(c.optout_novos)}</td><td>${fmtN(c.respostas)} <small>${fmtPct(pct(c.respostas, c.sent))}</small></td><td>${fmtN(c.grupo)}</td><td>${fmtPct(pct(c.grupo, c.sent))}</td>
+        <td>${hora(c.first_sent_at || c.started_at || c.scheduled_at)}</td></tr>`;
+    }
+    $("campanhas").innerHTML = t + `</table></div>`;
+  }
+
+  // check-ins
+  const ck = d.checkins || {};
+  if (!ck.total) $("checkins").innerHTML = `<div class="all-ok">Nenhum check-in recebido ainda. O formulário precisa estar ligado ao webhook das pesquisas (Connect → Webhooks no Typeform).</div>`;
+  else {
+    const porAng = (ck.por_angulo||[]).map(a => `${esc(a.angulo)}: <b>${fmtN(a.n)}</b>`).join(" · ");
+    const porDiaC = (ck.por_dia||[]).slice(-10).map(x => `${ddmm(x.dia)}: <b>${fmtN(x.n)}</b>`).join(" · ");
+    $("checkins").innerHTML = `<div class="sync"><span>Por ângulo → ${porAng}</span></div><div class="sync" style="margin-top:8px"><span>Por dia → ${porDiaC}</span></div>`;
+  }
+
+  // saúde
+  const s = d.sync||{};
+  const late = ts => ts && (Date.now() - Date.parse(ts)) > 3*3600e3;
+  $("sync").innerHTML = [
+    ["Campanhas da Anne", s.disparos_at], ["Envios", s.recipients_at], ["Respostas dos alunos", s.contatos_at],
+    ["Último evento da Sendflow", s.inbox_sendflow_at], ["Última entrada no grupo da Black", s.membros_at],
+  ].map(([l, ts]) => `<span>${l}: <b class="${late(ts) && l !== "Última entrada no grupo da Black" ? "late" : ""}">${hora(ts)}</b></span>`).join("");
+}
+
+load();
+setInterval(load, 120000); // 2 min — entrada no grupo é em tempo real no banco
+</script>
+</body>
+</html>
