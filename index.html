@@ -151,6 +151,15 @@ footer{color:var(--muted);font-size:11.5px;margin-top:22px;text-align:center}
   </div>
 </div>
 
+<!-- FUNIL POR MENTORIA -->
+<div class="card">
+  <div class="card-head">
+    <div><h2>Funil por mentoria</h2><div class="hint">Mentorias agrupadas (1 ano + 2 anos + Até a Prova = uma linha; as 14 turmas Diamante = uma linha) · aluno em duas mentorias conta nas duas · entrada no grupo casada pelo telefone</div></div>
+  </div>
+  <div class="rs-wrap"><table class="rs" id="funil-ment"></table></div>
+  <div class="note" id="funil-ment-note">Alunos = toda a base da Black (37,7k) com aquela mentoria na THINK · Em disparo = os que estão nas camadas da Anne · a barra é a % de entrada no grupo sobre os alunos em disparo.</div>
+</div>
+
 <!-- CAMPANHAS -->
 <div class="card">
   <div class="card-head">
@@ -258,6 +267,43 @@ function renderAll(d){
   }
   rows += `<tr class="tot"><td>Total das camadas de disparo</td><td></td><td>${fmtN(baseAl)}</td><td>${fmtN(baseFo)}</td><td>${fmtN(env)}</td><td>${fmtN(resp)}</td><td>${fmtPct(pct(resp,env))}</td><td>${fmtN(gr)}</td><td>${fmtPct(pct(gr,env))}</td></tr>`;
   $("funil").innerHTML = rows;
+
+  // funil por mentoria (agrupada)
+  const pm = (d.por_mentoria||[]).slice();
+  if (pm.length){
+    const grandes = pm.filter(m => m.alunos >= 30 || m.grupo >= 5), pequenas = pm.filter(m => !(m.alunos >= 30 || m.grupo >= 5));
+    if (pequenas.length){
+      const o = { mentoria: `Outras (${pequenas.length} mentorias pequenas)`, outras: true };
+      for (const k of ["alunos","em_disparo","fones","enviados","respostas","grupo"]) o[k] = pequenas.reduce((s,m) => s + (m[k]||0), 0);
+      grandes.push(o);
+    }
+    const maxM = Math.max(0.01, ...grandes.map(m => pct(m.grupo, m.em_disparo) || 0));
+    let r2 = `<tr><th>Mentoria</th><th>Alunos</th><th>Em disparo</th><th>Telefones</th><th>Enviados</th><th>Responderam</th><th>% resp.</th><th>No grupo</th><th>% grupo</th></tr>`;
+    const tot = { alunos:0, em_disparo:0, fones:0, enviados:0, respostas:0, grupo:0 };
+    // mentorias da plataforma antiga ficam recolhidas (botão mostra/esconde)
+    const antigas = grandes.filter(m => /^Mentoria antiga/.test(m.mentoria)), atuais = grandes.filter(m => !/^Mentoria antiga/.test(m.mentoria));
+    const ordem = atuais.concat(antigas);
+    let titAntigas = false;
+    for (const m of ordem){
+      for (const k in tot) tot[k] += m[k]||0;
+      const pg = pct(m.grupo, m.em_disparo), pr = pct(m.respostas, m.enviados);
+      const antiga = /^Mentoria antiga/.test(m.mentoria);
+      if (antiga && !titAntigas){
+        titAntigas = true;
+        const a = { alunos:0, em_disparo:0, fones:0, enviados:0, respostas:0, grupo:0 };
+        for (const x of antigas) for (const k in a) a[k] += x[k]||0;
+        r2 += `<tr class="tot" style="cursor:pointer" onclick="document.querySelectorAll('#funil-ment tr.antiga').forEach(t=>t.style.display=t.style.display==='none'?'':'none');this.querySelector('b').textContent=this.querySelector('b').textContent==='▸'?'▾':'▸'"><td><b>▸</b> Mentorias da plataforma antiga (${antigas.length}) · clique para abrir</td><td>${fmtN(a.alunos)}</td><td>${fmtN(a.em_disparo)}</td><td>${fmtN(a.fones)}</td><td>${fmtN(a.enviados)}</td><td>${fmtN(a.respostas)}</td><td>${a.enviados ? fmtPct(pct(a.respostas,a.enviados)) : "—"}</td><td>${fmtN(a.grupo)}</td><td>${fmtPct(pct(a.grupo,a.em_disparo))}</td></tr>`;
+      }
+      const sem = (m.sem_mentoria ? " dim" : "") + (antiga ? " antiga" : "");
+      r2 += `<tr class="${sem}"${antiga ? ' style="display:none"' : ''}><td>${antiga ? "&nbsp;&nbsp;&nbsp;" : ""}${esc(m.mentoria)}</td><td>${fmtN(m.alunos)}</td><td>${fmtN(m.em_disparo)}</td><td>${fmtN(m.fones)}</td>
+        <td>${fmtN(m.enviados)}</td><td>${fmtN(m.respostas)}</td><td>${m.enviados ? fmtPct(pr) : "—"}</td>
+        <td>${fmtN(m.grupo)}</td><td>${m.em_disparo ? `<span class="bar" style="width:${Math.round(60*(pg||0)/maxM)}px"></span>${fmtPct(pg)}` : (m.grupo ? "<small>sem disparo</small>" : "—")}</td></tr>`;
+    }
+    r2 += `<tr class="tot"><td>Soma (aluno em 2 mentorias conta 2×)</td><td>${fmtN(tot.alunos)}</td><td>${fmtN(tot.em_disparo)}</td><td>${fmtN(tot.fones)}</td><td>${fmtN(tot.enviados)}</td><td>${fmtN(tot.respostas)}</td><td>${fmtPct(pct(tot.respostas,tot.enviados))}</td><td>${fmtN(tot.grupo)}</td><td>${fmtPct(pct(tot.grupo,tot.em_disparo))}</td></tr>`;
+    $("funil-ment").innerHTML = r2;
+  } else {
+    $("funil-ment").innerHTML = `<tr><td>Sem dado de mentoria ainda (carga da THINK pendente).</td></tr>`;
+  }
 
   // entradas por dia (últimos 14 dias com dado + hoje)
   const porDia = {};
