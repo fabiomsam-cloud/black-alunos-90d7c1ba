@@ -188,9 +188,9 @@ const ddmm = iso => iso.slice(8,10) + "/" + iso.slice(5,7);
 const hora = ts => ts ? new Date(ts).toLocaleString("pt-BR",{timeZone:"America/Manaus",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}).replace(",", " ·") : "—";
 const hojeManaus = () => new Date(Date.now() - 4*3600e3).toISOString().slice(0,10);
 const ANG_NOME = {"1":"Já tem Play Passei","2":"Perguntou por outros produtos","3":"Dor de método declarada","4":"Pediu ferramenta / celular",
-  "5":"Turma aberta, sem sinal","6":"Estudou >25% e expirou","7a":"Comprou 2025-26 e não abriu","7b":"Antigo que não abriu","8":"Só low ticket",
+  "5":"Turma aberta, sem sinal","5b":"Pagante com acesso, sem sinal","6":"Estudou >25% e expirou","7a":"Comprou 2025-26 e não abriu","7b":"Antigo que não abriu","8":"Só low ticket",
   "9":"Sem sinal","D":"Fora: aprovado/desistiu/reembolso","X":"Fora: não contatar"};
-const ORDEM = ["1","2","4","3","6","5","7a","8","7b","9","D","X"];
+const ORDEM = ["1","2","4","3","6","5","5b","7a","8","7b","9","D","X"];
 
 function relogio(){
   $("clock").textContent = new Date().toLocaleString("pt-BR",{timeZone:"America/Manaus", day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit"}).replace(",", " ·");
