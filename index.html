@@ -171,9 +171,17 @@ footer{color:var(--muted);font-size:11.5px;margin-top:22px;text-align:center}
 <!-- CHECK-INS -->
 <div class="card">
   <div class="card-head">
-    <div><h2>Check-in de presença (Typeform)</h2><div class="hint">Respostas do formulário obrigatório do grupo, por dia e por ângulo de origem</div></div>
+    <div><h2>Check-in de presença (Typeform)</h2><div class="hint">Formulário obrigatório do grupo · quem respondeu, comprometimento com a live, interesse na condição de 10/11, perfil e o que escreveram</div></div>
   </div>
   <div id="checkins"></div>
+  <div class="kpis" id="ck-kpis" style="margin-top:12px"></div>
+  <div class="grid g-two" style="margin-top:12px">
+    <div><div class="rs-wrap"><table class="rs" id="ck-dist" style="min-width:0"></table></div></div>
+    <div><div class="rs-wrap"><table class="rs" id="ck-dist2" style="min-width:0"></table></div></div>
+  </div>
+  <h3 style="font-family:var(--disp);font-size:14px;margin:14px 0 6px">O que os alunos estão escrevendo</h3>
+  <div class="hint" style="margin-bottom:8px">Últimas respostas abertas, sem nome · "o que impede" classificado por tema (rotina/tempo, organização, memorização, financeiro, emocional)</div>
+  <div class="rs-wrap"><table class="rs" id="ck-falas"></table></div>
 </div>
 
 <div class="card">
@@ -334,13 +342,42 @@ function renderAll(d){
     $("campanhas").innerHTML = t + `</table></div>`;
   }
 
-  // check-ins
-  const ck = d.checkins || {};
-  if (!ck.total) $("checkins").innerHTML = `<div class="all-ok">Nenhum check-in recebido ainda. O formulário precisa estar ligado ao webhook das pesquisas (Connect → Webhooks no Typeform).</div>`;
-  else {
-    const porAng = (ck.por_angulo||[]).map(a => `${esc(a.angulo)}: <b>${fmtN(a.n)}</b>`).join(" · ");
-    const porDiaC = (ck.por_dia||[]).slice(-10).map(x => `${ddmm(x.dia)}: <b>${fmtN(x.n)}</b>`).join(" · ");
-    $("checkins").innerHTML = `<div class="sync"><span>Por ângulo → ${porAng}</span></div><div class="sync" style="margin-top:8px"><span>Por dia → ${porDiaC}</span></div>`;
+  // check-ins (black_checkins via webhook dedicado typeform/black-checkin)
+  const cd = d.checkins_detalhe || {};
+  const dist = Array.isArray(cd.dist) ? cd.dist : [];
+  const porCampo = campo => dist.filter(x => x.campo === campo);
+  if (!cd.total) {
+    $("checkins").innerHTML = `<div class="all-ok">Nenhum check-in recebido pelo webhook novo ainda (typeform/black-checkin). As respostas anteriores ao webhook caíram no fluxo antigo sem os campos.</div>`;
+    $("ck-kpis").innerHTML = ""; $("ck-dist").innerHTML = ""; $("ck-dist2").innerHTML = ""; $("ck-falas").innerHTML = "";
+  } else {
+    const porDiaC = (cd.por_dia||[]).slice(-10).map(x => `${ddmm(x.dia)}: <b>${fmtN(x.n)}</b>`).join(" · ");
+    $("checkins").innerHTML = `<div class="sync"><span>Por dia → ${porDiaC}</span></div>`;
+    const comp = porCampo("comprometimento"); const nComp = comp.reduce((s,x)=>s+x.n,0);
+    const compAlto = comp.filter(x => Number(x.valor) >= 9).reduce((s,x)=>s+x.n,0);
+    const inter = porCampo("interesse_1011"); const nInt = inter.reduce((s,x)=>s+x.n,0);
+    const intSim = inter.filter(x => /^Sim/.test(x.valor)).reduce((s,x)=>s+x.n,0);
+    const jaEst = porCampo("ja_estudou"); const nJa = jaEst.reduce((s,x)=>s+x.n,0); const jaSim = jaEst.filter(x => x.valor === "Sim").reduce((s,x)=>s+x.n,0);
+    $("ck-kpis").innerHTML = [
+      ["Check-ins", fmtN(cd.total), `${fmtN(cd.da_base)} da base de alunos`],
+      ["Comprometimento 9–10", fmtPct(pct(compAlto, nComp)), `${fmtN(compAlto)} de ${fmtN(nComp)} que responderam`],
+      ["Muito interesse em 10/11", fmtPct(pct(intSim, nInt)), `"Sim, tenho muito interesse" · ${fmtN(intSim)} de ${fmtN(nInt)}`],
+      ["Já estudou conosco", fmtPct(pct(jaSim, nJa)), `${fmtN(jaSim)} de ${fmtN(nJa)}`],
+    ].map(([l,v,s]) => `<div class="tk"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("");
+    const tabela = (campos) => {
+      let t = `<tr><th>Pergunta</th><th>Resposta</th><th>N</th><th>%</th></tr>`;
+      for (const [campo, titulo] of campos){
+        const rows = porCampo(campo); const n = rows.reduce((s,x)=>s+x.n,0);
+        rows.slice(0, 7).forEach((x, i) => { t += `<tr><td>${i === 0 ? esc(titulo) : ""}</td><td style="text-align:left">${esc(x.valor)}</td><td>${fmtN(x.n)}</td><td>${fmtPct(pct(x.n, n))}</td></tr>`; });
+      }
+      return t;
+    };
+    $("ck-dist").innerHTML = tabela([["tema_impede","O que impede (tema)"],["experiencia","Experiência"],["interesse_1011","Interesse em 10/11"],["comprometimento","Comprometimento (0–10)"]]);
+    $("ck-dist2").innerHTML = tabela([["escolaridade","Escolaridade"],["renda","Renda"],["mora_com","Mora com"],["faixa_etaria","Faixa etária"],["angulo","Ângulo de origem"]]);
+    const falas = Array.isArray(cd.falas) ? cd.falas : [];
+    let f = `<tr><th>Dia</th><th>Tema</th><th>O que impede</th><th>Como se sente</th><th>Maior medo</th><th>Maior sonho</th><th>3 perguntas para o Professor</th></tr>`;
+    for (const x of falas.slice(0, 25)) f += `<tr><td>${ddmm(x.quando)}</td><td><span class="bdg meta">${esc(x.tema||"—")}</span></td>` +
+      ["impede","sente","medo","sonho","perguntas"].map(k => `<td style="text-align:left;white-space:normal;max-width:230px;font-weight:400;color:var(--ink-2)">${esc(x[k]||"—")}</td>`).join("") + `</tr>`;
+    $("ck-falas").innerHTML = falas.length ? f : "";
   }
 
   // saúde
