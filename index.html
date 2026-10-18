@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
-<title>SOU · Black Alunos 27/10</title>
+<title>SOU · Black · alunos 27/10 e não alunos 10/11</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -94,6 +94,21 @@ header{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;
 .sync b{color:var(--ink-2);font-weight:600}
 .sync .late{color:#b42318}
 footer{color:var(--muted);font-size:11.5px;margin-top:22px;text-align:center}
+/* abas (18/10) */
+.tabs{display:flex;gap:6px;margin:0 0 14px;border-bottom:1px solid var(--grid)}
+.tabs button{appearance:none;border:0;background:none;font:inherit;font-family:var(--disp);font-weight:700;font-size:14.5px;color:var(--muted);padding:10px 14px;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px;letter-spacing:-.1px}
+.tabs button.on{color:var(--ink);border-bottom-color:var(--cyan)}
+.tabs button em{font-style:normal;color:var(--cyan)}
+.tabs button .pill{display:inline-block;margin-left:8px;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--surface-2);color:var(--ink-2);font-family:var(--body)}
+.pane[hidden]{display:none}
+.vday .seg.pagina{background:var(--cyan)} .vday .seg.fora{background:#cbd5e1} .vday .seg.cad{background:#ffd166}
+.funnel{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px}
+@media(max-width:800px){.funnel{grid-template-columns:1fr 1fr}}
+.funnel .st{background:var(--surface-2);border-radius:12px;padding:12px 14px;position:relative}
+.funnel .st .l{color:var(--muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+.funnel .st .v{font-family:var(--disp);font-weight:800;font-size:26px;margin-top:4px;letter-spacing:-.4px}
+.funnel .st .p{font-size:11.5px;color:var(--muted);margin-top:2px}
+.funnel .st .fill{position:absolute;left:0;bottom:0;height:4px;background:var(--cyan);border-radius:0 0 12px 12px}
 @media(max-width:640px){.wrap{padding:18px 14px 70px}.brand h1{font-size:24px}}
 </style>
 </head>
@@ -102,8 +117,9 @@ footer{color:var(--muted);font-size:11.5px;margin-top:22px;text-align:center}
 
 <header>
   <div class="brand">
-    <h1>BLACK · <em>ALUNOS</em> · 27/10</h1>
-    <div class="sub">Encontro ao vivo só para alunos · <b>terça, 27/10, 20h de Brasília (19h em Manaus)</b> · YouTube · métrica mestra: <b>entrada no grupo</b> · disparos em vídeo pela Anne (agente black_alunos) a partir de <b>13/10</b></div>
+    <h1>BLACK · <em>A REVOLUÇÃO DO ESTUDO</em></h1>
+    <div class="sub" id="sub-alunos">Encontro ao vivo só para alunos · <b>terça, 27/10, 20h de Brasília (19h em Manaus)</b> · YouTube · métrica mestra: <b>entrada no grupo</b> · disparos em vídeo pela Anne (agente black_alunos) a partir de <b>13/10</b></div>
+    <div class="sub" id="sub-nao" hidden>Live aberta para não alunos · <b>terça, 10/11, 20h de Brasília (19h em Manaus)</b> · YouTube · páginas revolucaodoestudo.com.br (v1–v5) + pop-up de trial do Sou Questões · campanhas Meta desde <b>19/10 06h</b> · régua da Anne em 5 min (agente black_nao_alunos)</div>
   </div>
   <div class="stamp">
     <div class="clock" id="clock">—</div>
@@ -112,8 +128,14 @@ footer{color:var(--muted);font-size:11.5px;margin-top:22px;text-align:center}
   </div>
 </header>
 
-<div class="rail" id="rail"></div>
+<div class="tabs" role="tablist">
+  <button id="tb-alunos" class="on" onclick="aba('alunos')">Black <em>Alunos</em> · 27/10 <span class="pill" id="pill-alunos">—</span></button>
+  <button id="tb-nao" onclick="aba('nao')">Black <em>Não alunos</em> · 10/11 <span class="pill" id="pill-nao">—</span></button>
+</div>
 <div class="err" id="err"></div>
+
+<div class="pane" id="pane-alunos">
+<div class="rail" id="rail"></div>
 
 <!-- KPIs -->
 <div class="card">
@@ -128,6 +150,16 @@ footer{color:var(--muted);font-size:11.5px;margin-top:22px;text-align:center}
     <div class="tk ok"><div class="l">Grupo hoje</div><div class="v" id="k-ativos">—</div><div class="s" id="k-ativos-s">—</div></div>
     <div class="tk"><div class="l">Check-ins</div><div class="v" id="k-chk">—</div><div class="s" id="k-chk-s">formulário de presença</div></div>
   </div>
+</div>
+
+<!-- CADASTROS PELA PÁGINA / POP-UPS (18/10) -->
+<div class="card">
+  <div class="card-head">
+    <div><h2>Cadastros no funil de alunos — de onde vêm</h2><div class="hint">Página <b>revolucaodoestudo.com.br/alunos/</b> (campanha Meta) + pop-ups do portal, Play Passei e Sou Questões · entrada no grupo casada pelo telefone · régua da Anne em 5 min para quem não entrou</div></div>
+    <div class="sync" id="cad-al-resumo"></div>
+  </div>
+  <div class="rs-wrap"><table class="rs" id="cad-al-origens"></table></div>
+  <div class="note" id="cad-al-note"></div>
 </div>
 
 <div class="grid g-two">
@@ -189,7 +221,66 @@ footer{color:var(--muted);font-size:11.5px;margin-top:22px;text-align:center}
   <div class="sync" id="sync"></div>
 </div>
 
-<footer>BLACK · A Revolução do Estudo · alunos · Sou Concurseiro e Vou Passar · painel interno</footer>
+</div><!-- /pane-alunos -->
+
+<div class="pane" id="pane-nao" hidden>
+<div class="rail" id="rail-nao"></div>
+
+<div class="card">
+  <div class="card-head">
+    <div><h2>Funil de não alunos</h2><div class="hint">Cadastrou na página → clicou em “entrar no grupo” → entrou de fato no grupo (Sendflow, tempo real) · superior = escolaridade que qualifica (superior cursando/completo/pós)</div></div>
+  </div>
+  <div class="funnel" id="nao-funil"></div>
+  <div class="kpis" id="nao-kpis" style="margin-top:12px"></div>
+</div>
+
+<div class="card">
+  <div class="card-head">
+    <div><h2>Custo por cadastro e por entrada no grupo — por campanha</h2><div class="hint">Gasto da Meta (meta_ads_insights, dia a dia) × cadastros e entradas atribuídos pela UTM da campanha · gasto chega com atraso de até 1 dia</div></div>
+  </div>
+  <div id="nao-custo"></div>
+</div>
+
+<div class="grid g-two">
+  <div class="card">
+    <div class="card-head">
+      <div><h2>Cadastros por origem</h2><div class="hint">Campanha → conjunto → criativo (utm_campaign / utm_term / utm_content) · pop-ups e orgânico aparecem como fonte</div></div>
+    </div>
+    <div class="rs-wrap"><table class="rs" id="nao-origens"></table></div>
+  </div>
+  <div class="card">
+    <div class="card-head">
+      <div><h2>Entradas no grupo por dia</h2><div class="hint">Webhook da Sendflow · dia calendário de Manaus · barra amarela = cadastros do dia</div></div>
+    </div>
+    <div class="vday" id="nao-vday"></div>
+    <div class="legend"><span><i style="background:var(--cyan)"></i>entrou vindo da página</span><span><i style="background:#cbd5e1"></i>entrou por fora (link direto)</span><span><i style="background:#ffd166"></i>cadastros na página</span></div>
+    <div class="note" id="nao-saidas"></div>
+  </div>
+</div>
+
+<div class="grid g-two">
+  <div class="card">
+    <div class="card-head">
+      <div><h2>Criativos campeões</h2><div class="hint">Só anúncios (utm_content dos cadastros vindos de campanha) · ordem por cadastros · a barra é a % que entrou no grupo</div></div>
+    </div>
+    <div class="rs-wrap"><table class="rs" id="nao-criativos" style="min-width:0"></table></div>
+  </div>
+  <div class="card">
+    <div class="card-head">
+      <div><h2>Por versão da página</h2><div class="hint">v1–v5 e pop-up · qual página converte melhor em cadastro → grupo</div></div>
+    </div>
+    <div class="rs-wrap"><table class="rs" id="nao-versao" style="min-width:0"></table></div>
+    <div class="kpis" id="nao-regua" style="margin-top:14px;grid-template-columns:repeat(3,1fr)"></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-head"><div><h2>Saúde dos dados</h2><div class="hint">Última atualização de cada fonte</div></div></div>
+  <div class="sync" id="sync-nao"></div>
+</div>
+</div><!-- /pane-nao -->
+
+<footer>BLACK · A Revolução do Estudo · alunos e não alunos · Sou Concurseiro e Vou Passar · painel interno</footer>
 </div>
 
 <script>
@@ -248,8 +339,128 @@ function renderRail(d){
   $("rail").innerHTML = html;
 }
 
+function aba(q){
+  const alunos = q === "alunos";
+  $("pane-alunos").hidden = !alunos; $("pane-nao").hidden = alunos;
+  $("sub-alunos").hidden = !alunos; $("sub-nao").hidden = alunos;
+  $("tb-alunos").classList.toggle("on", alunos); $("tb-nao").classList.toggle("on", !alunos);
+  try { localStorage.setItem("black_aba", q); } catch (_) {}
+  if (!alunos) history.replaceState(null, "", "#nao-alunos"); else history.replaceState(null, "", location.pathname + location.search);
+}
+(function(){ let q = location.hash === "#nao-alunos" ? "nao" : null; try { q = q || localStorage.getItem("black_aba"); } catch (_) {} if (q === "nao") aba("nao"); })();
+
+const fmtR = v => v == null ? "—" : "R$ " + Number(v).toLocaleString("pt-BR", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const fmtR0 = v => v == null ? "—" : "R$ " + Math.round(Number(v)).toLocaleString("pt-BR");
+const nomeCamp = n => String(n||"").replace(/^\[BLACK\]\[(NAOALUNOS|ALUNOS)\]\s*/, "").replace(/\[META\]\s*/, "");
+
+function renderCadastros(c){
+  if (!c || c.error) {
+    $("cad-al-origens").innerHTML = `<tr><td>Sem dados de cadastro: ${esc(c?.error || "função não respondeu")}</td></tr>`;
+    $("pill-alunos").textContent = "—"; $("pill-nao").textContent = "—"; return;
+  }
+  // ---------- ABA ALUNOS: origem dos cadastros ----------
+  const al = c.alunos || {}, ca = al.cadastros || {};
+  $("pill-alunos").textContent = fmtN(ca.total) + " cadastros";
+  $("cad-al-resumo").innerHTML = `<span>Cadastros: <b>${fmtN(ca.total)}</b> (hoje <b>${fmtN(ca.hoje)}</b>)</span><span>Clicaram no grupo: <b>${fmtN(ca.clicaram)}</b></span><span>No grupo: <b>${fmtN(ca.no_grupo)}</b> · ${fmtPct(pct(ca.no_grupo, ca.total))}</span>` +
+    `<span>Régua da Anne: <b>${fmtN(al.regua?.enviados)}</b> enviados · <b>${fmtN(al.regua?.entraram_depois)}</b> entraram depois</span>`;
+  const origemLabel = o => {
+    const pop = /^popup/.test(o.conteudo || "");
+    if (pop) return `<span class="bdg disparo">pop-up</span> ${esc({portal:"Portal (aluno logado)", playpassei:"Play Passei", souquestoes:"Sou Questões"}[o.fonte] || o.fonte)}`;
+    if (/^\[BLACK\]/.test(o.campanha || "")) return `<span class="bdg meta">Meta</span> ${esc(o.fonte)}`;
+    return `<span class="bdg meta">${esc(o.fonte)}</span>`;
+  };
+  const linhasOrig = (rows, comSuperior) => {
+    const maxG = Math.max(0.01, ...rows.map(o => pct(o.no_grupo, o.cadastros) || 0));
+    let t = `<tr><th>Origem</th><th>Campanha</th><th>Conjunto</th><th>Criativo / conteúdo</th><th>Cadastros</th><th>Hoje</th>${comSuperior ? "<th>Superior</th>" : ""}<th>Clicaram</th><th>No grupo</th><th>% no grupo</th><th>Último</th></tr>`;
+    const tot = {cadastros:0, hoje:0, superior:0, clicaram:0, no_grupo:0};
+    for (const o of rows){
+      for (const k in tot) tot[k] += o[k] || 0;
+      const pg = pct(o.no_grupo, o.cadastros);
+      t += `<tr><td>${origemLabel(o)}</td><td style="white-space:normal;max-width:260px">${esc(nomeCamp(o.campanha) === o.campanha && /^\[BLACK\]/.test(o.campanha) ? o.campanha : (/^\[BLACK\]/.test(o.campanha||"") ? nomeCamp(o.campanha) : (o.campanha === "(sem campanha)" ? "—" : o.campanha)))}</td>` +
+           `<td>${esc(o.conjunto === "mkt" || !o.conjunto ? "—" : o.conjunto)}</td><td>${esc(o.conteudo)}</td><td>${fmtN(o.cadastros)}</td><td>${fmtN(o.hoje)}</td>${comSuperior ? `<td>${fmtN(o.superior)} <small>${fmtPct(pct(o.superior, o.cadastros))}</small></td>` : ""}` +
+           `<td>${fmtN(o.clicaram)}</td><td>${fmtN(o.no_grupo)}</td><td><span class="bar" style="width:${Math.round(60*(pg||0)/maxG)}px"></span>${fmtPct(pg)}</td><td class="dim">${hora(o.ultimo)}</td></tr>`;
+    }
+    t += `<tr class="tot"><td>Total</td><td></td><td></td><td></td><td>${fmtN(tot.cadastros)}</td><td>${fmtN(tot.hoje)}</td>${comSuperior ? `<td>${fmtN(tot.superior)} <small>${fmtPct(pct(tot.superior, tot.cadastros))}</small></td>` : ""}<td>${fmtN(tot.clicaram)}</td><td>${fmtN(tot.no_grupo)}</td><td>${fmtPct(pct(tot.no_grupo, tot.cadastros))}</td><td></td></tr>`;
+    return t;
+  };
+  $("cad-al-origens").innerHTML = (al.origens||[]).length ? linhasOrig(al.origens, false) : `<tr><td>Nenhum cadastro ainda.</td></tr>`;
+  const pd = (al.por_dia||[]).slice(-7).map(x => `${ddmm(x.dia)}: <b>${fmtN(x.cadastros)}</b> (${fmtN(x.no_grupo)} no grupo)`).join(" · ");
+  $("cad-al-note").textContent = pd ? "Últimos dias → " + pd : "";
+
+  // ---------- ABA NÃO ALUNOS ----------
+  const na = c.nao_alunos || {}, cn = na.cadastros || {}, gr = na.grupo || {};
+  $("pill-nao").textContent = fmtN(gr.ativos) + " no grupo";
+  const live = Date.parse(c.live_nao_alunos); const diff = live - Date.now();
+  const dias = Math.floor(diff/86400e3), horas = Math.floor((diff%86400e3)/3600e3);
+  $("rail-nao").innerHTML = (diff > 0 ? `<div class="cd live"><span class="n">${dias}d ${horas}h</span><span class="l">para a live · ter 10/11 · 20h BRT</span></div>` :
+      diff > -4*3600e3 ? `<div class="cd live"><span class="n now">AO VIVO</span><span class="l">live em andamento</span></div>` : `<div class="cd"><span class="n">feita</span><span class="l">live de 10/11</span></div>`) +
+    `<div class="cd"><span class="n">${fmtN(cn.total)}</span><span class="l">cadastros</span></div><div class="cd"><span class="n">${fmtN(cn.hoje)}</span><span class="l">hoje</span></div>` +
+    `<div class="cd"><span class="n now">${fmtN(gr.ativos)}</span><span class="l">no grupo agora</span></div>`;
+  const etapas = [["Cadastraram", cn.total, null], ["Clicaram no grupo", cn.clicaram, cn.total], ["Entraram no grupo", cn.no_grupo, cn.total], ["Grupo (tudo)", gr.ativos, null]];
+  const base = Math.max(1, cn.total||0);
+  $("nao-funil").innerHTML = etapas.map(([l,v,b]) => `<div class="st"><div class="l">${l}</div><div class="v">${fmtN(v)}</div><div class="p">${b ? fmtPct(pct(v,b)) + " dos cadastros" : (l === "Grupo (tudo)" ? `${fmtN(gr.da_pagina)} da página · ${fmtN((gr.ativos||0)-(gr.da_pagina||0))} por fora · ${fmtN(gr.saidas)} saíram` : "&nbsp;")}</div><div class="fill" style="width:${Math.round(100*Math.min(1,(v||0)/base))}%"></div></div>`).join("");
+  $("nao-kpis").innerHTML = [
+    ["Últimos 7 dias", fmtN(cn.ultimos_7d), "cadastros"],
+    ["Escolaridade superior", fmtPct(pct(cn.superior, cn.total)), `${fmtN(cn.superior)} de ${fmtN(cn.total)} · Lead sai para todos`],
+    ["Cadastro → grupo", fmtPct(pct(cn.no_grupo, cn.total)), "taxa mestra do funil"],
+    ["Clicou → entrou", fmtPct(pct(cn.no_grupo, cn.clicaram)), "perda entre o botão e o WhatsApp"],
+    ["Régua da Anne", fmtN(na.regua?.enviados), `${fmtN(na.regua?.entraram_depois)} entraram depois do toque · ${fmtN(na.regua?.falhas)} falhas`],
+    ["Entraram por fora", fmtN((gr.ativos||0)-(gr.da_pagina||0)), "link direto, sem cadastro"],
+  ].map(([l,v,s]) => `<div class="tk"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("");
+
+  // custo por campanha (alunos + não alunos; a aba de não alunos mostra todas para comparar)
+  const custo = (c.custo||[]);
+  if (!custo.length) $("nao-custo").innerHTML = `<div class="all-ok">Ainda sem gasto registrado — as campanhas começam 19/10 às 06h e o gasto da Meta chega no Data Core no dia seguinte.</div>`;
+  else {
+    let t = `<div class="rs-wrap"><table class="rs"><tr><th>Campanha</th><th>Gasto</th><th>Impressões</th><th>Cliques</th><th>CPC</th><th>Cadastros</th><th>Custo / cadastro</th><th>No grupo</th><th>Custo / entrada</th><th>Gasto até</th></tr>`;
+    const tot = {gasto:0, impressoes:0, cliques:0, cadastros:0, no_grupo:0};
+    for (const x of custo){
+      for (const k in tot) tot[k] += Number(x[k]||0);
+      t += `<tr><td title="${esc(x.campanha)}"><span class="bdg ${x.alunos ? "disparo" : "meta"}">${x.alunos ? "alunos" : "não alunos"}</span> ${esc(nomeCamp(x.campanha))}</td><td>${fmtR(x.gasto)}</td><td>${fmtN(x.impressoes)}</td><td>${fmtN(x.cliques)}</td><td>${x.cliques ? fmtR(x.gasto/x.cliques) : "—"}</td>` +
+           `<td>${fmtN(x.cadastros)}</td><td class="${x.cadastros && x.gasto/x.cadastros <= 8 ? "ok" : x.cadastros ? "mid" : ""}">${x.cadastros ? fmtR(x.gasto/x.cadastros) : "—"}</td><td>${fmtN(x.no_grupo)}</td><td class="${x.no_grupo && x.gasto/x.no_grupo <= 12 ? "ok" : x.no_grupo ? "mid" : ""}">${x.no_grupo ? fmtR(x.gasto/x.no_grupo) : "—"}</td><td class="dim">${x.ultimo_dia ? ddmm(x.ultimo_dia) : "—"}</td></tr>`;
+    }
+    t += `<tr class="tot"><td>Total</td><td>${fmtR(tot.gasto)}</td><td>${fmtN(tot.impressoes)}</td><td>${fmtN(tot.cliques)}</td><td>${tot.cliques ? fmtR(tot.gasto/tot.cliques) : "—"}</td><td>${fmtN(tot.cadastros)}</td><td>${tot.cadastros ? fmtR(tot.gasto/tot.cadastros) : "—"}</td><td>${fmtN(tot.no_grupo)}</td><td>${tot.no_grupo ? fmtR(tot.gasto/tot.no_grupo) : "—"}</td><td></td></tr>`;
+    $("nao-custo").innerHTML = t + `</table></div><div class="note">Verde = custo por cadastro até R$ 8 e por entrada até R$ 12 (referência inicial; ajusto quando tivermos a primeira semana).</div>`;
+  }
+
+  $("nao-origens").innerHTML = (na.origens||[]).length ? linhasOrig(na.origens, true) : `<tr><td>Nenhum cadastro ainda.</td></tr>`;
+
+  // entradas por dia (da página × fora) + cadastros do dia
+  const ent = Object.fromEntries((na.entradas_dia||[]).map(e => [e.dia, e]));
+  const cadD = Object.fromEntries((na.por_dia||[]).map(e => [e.dia, e.cadastros]));
+  const diasN = [...new Set([...Object.keys(ent), ...Object.keys(cadD), hojeManaus()])].sort().slice(-16);
+  const maxN = Math.max(1, ...diasN.map(x => Math.max(ent[x]?.n || 0, cadD[x] || 0)));
+  $("nao-vday").innerHTML = diasN.map(x => {
+    const e = ent[x] || {n:0, da_pagina:0}; const fora = (e.n||0) - (e.da_pagina||0);
+    return `<div class="vb"><div class="dv">${e.n || ""}${cadD[x] ? `<small style="color:#b7791f"> ·${cadD[x]}</small>` : ""}</div><div class="stack" style="flex-direction:row;align-items:flex-end;gap:2px;max-width:46px">` +
+      `<div style="flex:1;display:flex;flex-direction:column-reverse"><div class="seg pagina" style="height:${Math.round(96*(e.da_pagina||0)/maxN)}px" title="da página: ${e.da_pagina||0}"></div><div class="seg fora" style="height:${Math.round(96*fora/maxN)}px" title="por fora: ${fora}"></div></div>` +
+      `<div style="flex:1"><div class="seg cad" style="height:${Math.round(96*(cadD[x]||0)/maxN)}px" title="cadastros: ${cadD[x]||0}"></div></div></div><div class="dl">${ddmm(x)}</div></div>`;
+  }).join("");
+  $("nao-saidas").textContent = gr.saidas ? `Saídas do grupo: ${fmtN(gr.saidas)}.` : "Nenhuma saída registrada.";
+
+  // criativos campeões
+  const cr = (na.por_criativo||[]);
+  if (!cr.length) $("nao-criativos").innerHTML = `<tr><td>Ainda sem cadastro vindo de anúncio.</td></tr>`;
+  else {
+    const maxC = Math.max(0.01, ...cr.map(x => pct(x.no_grupo, x.cadastros) || 0));
+    $("nao-criativos").innerHTML = `<tr><th>Criativo</th><th>Cadastros</th><th>Superior</th><th>No grupo</th><th>% no grupo</th></tr>` + cr.slice(0, 20).map((x, i) => {
+      const pg = pct(x.no_grupo, x.cadastros);
+      return `<tr><td>${i < 3 ? "🏆 " : ""}${esc(x.criativo)}</td><td>${fmtN(x.cadastros)}</td><td>${fmtN(x.superior)} <small>${fmtPct(pct(x.superior, x.cadastros))}</small></td><td>${fmtN(x.no_grupo)}</td><td><span class="bar" style="width:${Math.round(60*(pg||0)/maxC)}px"></span>${fmtPct(pg)}</td></tr>`;
+    }).join("");
+  }
+  const pv = (na.por_versao||[]);
+  $("nao-versao").innerHTML = `<tr><th>Versão</th><th>Cadastros</th><th>Superior</th><th>Clicaram</th><th>No grupo</th><th>% no grupo</th></tr>` + pv.map(x =>
+    `<tr><td>${esc(x.versao)}</td><td>${fmtN(x.cadastros)}</td><td>${fmtN(x.superior)}</td><td>${fmtN(x.clicaram)}</td><td>${fmtN(x.no_grupo)}</td><td>${fmtPct(pct(x.no_grupo, x.cadastros))}</td></tr>`).join("") || `<tr><td>—</td></tr>`;
+  const rg = na.regua || {};
+  $("nao-regua").innerHTML = [["Régua: enviados", fmtN(rg.enviados), "toque de 5 min (template)"], ["Entraram depois do toque", fmtN(rg.entraram_depois), fmtPct(pct(rg.entraram_depois, rg.enviados)) + " dos enviados"], ["Pulados / falhas", `${fmtN(rg.pulados)} / ${fmtN(rg.falhas)}`, rg.ultimo ? "último toque " + hora(rg.ultimo) : "nenhum toque ainda"]]
+    .map(([l,v,s]) => `<div class="tk"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("");
+  const sy = c.sync || {};
+  $("sync-nao").innerHTML = [["Último cadastro", sy.leads_at], ["Última entrada em grupo da Black", sy.membros_at], ["Gasto da Meta até", sy.gasto_at]].map(([l, ts]) => `<span>${l}: <b>${ts ? (l.startsWith("Gasto") ? ddmm(ts) : hora(ts)) : "—"}</b></span>`).join("");
+}
+
 function renderAll(d){
   renderRail(d);
+  try { renderCadastros(d.cadastros_painel); } catch (e) { console.error("cadastros", e); }
   const base = Object.fromEntries((d.base||[]).map(b => [b.angulo, b]));
   const pa = Object.fromEntries((d.por_angulo||[]).map(a => [a.angulo, a]));
   const disp = ORDEM.filter(a => (base[a]?.canal) === "disparo");
