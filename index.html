@@ -165,7 +165,7 @@ footer{color:var(--muted);font-size:11.5px;margin-top:22px;text-align:center}
 <!-- CUSTO POR CADASTRO — CAMPANHA META DOS ALUNOS (21/10) -->
 <div class="card">
   <div class="card-head">
-    <div><h2>Custo por cadastro e por entrada no grupo — campanha Meta</h2><div class="hint">Só a campanha [BLACK][ALUNOS] · gasto da Meta (meta_ads_insights, atualizado de hora em hora) × cadastros e entradas atribuídos pelo utm_campaign</div></div>
+    <div><h2>Custo por cadastro e por entrada no grupo — campanha Meta</h2><div class="hint">Só a campanha [BLACK][ALUNOS] · gasto da Meta (meta_ads_insights, atualizado de hora em hora) × cadastros e entradas atribuídos pelo utm_campaign · Leads (Meta) e Connect vêm da API da Meta como no Gerenciador</div></div>
   </div>
   <div id="al-custo"></div>
 </div>
@@ -244,7 +244,7 @@ footer{color:var(--muted);font-size:11.5px;margin-top:22px;text-align:center}
 
 <div class="card">
   <div class="card-head">
-    <div><h2>Custo por cadastro e por entrada no grupo — por campanha</h2><div class="hint">Só campanhas [BLACK][NAOALUNOS] · gasto da Meta (meta_ads_insights, atualizado de hora em hora) × cadastros e entradas atribuídos pelo utm_campaign · casamento ignora as tags [LEADS]/[META] do nome na Meta</div></div>
+    <div><h2>Custo por cadastro e por entrada no grupo — por campanha</h2><div class="hint">Só campanhas [BLACK][NAOALUNOS] · gasto da Meta (meta_ads_insights, atualizado de hora em hora) × cadastros e entradas atribuídos pelo utm_campaign · Leads (Meta) e Connect vêm da API da Meta como no Gerenciador · casamento ignora as tags [LEADS]/[META] do nome</div></div>
   </div>
   <div id="nao-custo"></div>
 </div>
@@ -421,18 +421,21 @@ function renderCadastros(c){
   const renderCusto = (rows, el, vazio) => {
     const cap = rows.filter(x => x.captacao), outros = rows.filter(x => !x.captacao);
     if (!cap.length) { $(el).innerHTML = `<div class="all-ok">${vazio}</div>`; return; }
-    let t = `<div class="rs-wrap"><table class="rs"><tr><th>Campanha</th><th>Conta</th><th>Gasto</th><th>Impressões</th><th>Cliques</th><th>CPC</th><th>Cadastros</th><th>Custo / cadastro</th><th>No grupo</th><th>Custo / entrada</th><th>Gasto até</th></tr>`;
-    const tot = {gasto:0, impressoes:0, cliques:0, cadastros:0, no_grupo:0};
+    let t = `<div class="rs-wrap"><table class="rs"><tr><th>Campanha</th><th>Conta</th><th>Página</th><th>Gasto</th><th>Impressões</th><th>Cliques</th><th>CPC</th><th title="Leads como o Gerenciador conta (evento Lead do pixel/CAPI, atribuição da Meta)">Leads (Meta)</th><th title="Connect rate = visualizações da página ÷ cliques no link (Meta)">Connect</th><th title="Cadastros gravados pela página, atribuídos pelo utm_campaign">Cadastros</th><th>Custo / cadastro</th><th>No grupo</th><th>Custo / entrada</th><th>Gasto até</th></tr>`;
+    const tot = {gasto:0, impressoes:0, cliques:0, cadastros:0, no_grupo:0, leads_meta:0, link_clicks:0, lpv:0};
     for (const x of cap){
       for (const k in tot) tot[k] += Number(x[k]||0);
       const semGasto = x.gasto == null;
-      t += `<tr><td title="${esc(x.campanha_meta || x.campanha)}">${esc(nomeCamp(x.campanha))}${semGasto ? ` <span class="bdg disparo" title="nenhuma campanha na Meta casou com este utm_campaign">sem gasto</span>` : ""}</td><td class="dim">${esc((x.conta||"—").replace(/^SCVP - /,""))}</td><td>${fmtR(x.gasto)}</td><td>${fmtN(x.impressoes)}</td><td>${fmtN(x.cliques)}</td><td>${x.cliques ? fmtR(x.gasto/x.cliques) : "—"}</td>` +
+      t += `<tr><td title="${esc(x.campanha_meta || x.campanha)}">${esc(nomeCamp(x.campanha))}${semGasto ? ` <span class="bdg disparo" title="nenhuma campanha na Meta casou com este utm_campaign">sem gasto</span>` : ""}</td><td class="dim">${esc((x.conta||"—").replace(/^SCVP - /,""))}</td><td class="dim" style="white-space:normal;max-width:200px">${x.pagina ? esc(x.pagina.replace(/^revolucaodoestudo\.com\.br/,"…")) : "—"}</td><td>${fmtR(x.gasto)}</td><td>${fmtN(x.impressoes)}</td><td>${fmtN(x.cliques)}</td><td>${x.cliques ? fmtR(x.gasto/x.cliques) : "—"}</td>` +
+           `<td>${x.leads_meta != null ? `${fmtN(x.leads_meta)}${x.leads_meta ? ` <small class="dim">R$ ${((x.gasto_meta_vivo ?? x.gasto)/x.leads_meta).toFixed(2).replace(".",",")}</small>` : ""}` : "—"}</td><td>${x.link_clicks ? `${fmtPct(pct(x.lpv, x.link_clicks))} <small class="dim">${fmtN(x.lpv)}/${fmtN(x.link_clicks)}</small>` : "—"}</td>` +
            `<td>${fmtN(x.cadastros)}</td><td class="${x.cadastros && x.gasto ? (x.gasto/x.cadastros <= 8 ? "ok" : "mid") : ""}">${x.cadastros && x.gasto ? fmtR(x.gasto/x.cadastros) : "—"}</td><td>${fmtN(x.no_grupo)}</td><td class="${x.no_grupo && x.gasto ? (x.gasto/x.no_grupo <= 12 ? "ok" : "mid") : ""}">${x.no_grupo && x.gasto ? fmtR(x.gasto/x.no_grupo) : "—"}</td><td class="dim">${x.ultimo_dia ? ddmm(x.ultimo_dia) : "—"}</td></tr>`;
     }
-    t += `<tr class="tot"><td>Total</td><td></td><td>${fmtR(tot.gasto)}</td><td>${fmtN(tot.impressoes)}</td><td>${fmtN(tot.cliques)}</td><td>${tot.cliques ? fmtR(tot.gasto/tot.cliques) : "—"}</td><td>${fmtN(tot.cadastros)}</td><td>${tot.cadastros ? fmtR(tot.gasto/tot.cadastros) : "—"}</td><td>${fmtN(tot.no_grupo)}</td><td>${tot.no_grupo ? fmtR(tot.gasto/tot.no_grupo) : "—"}</td><td></td></tr>`;
+    t += `<tr class="tot"><td>Total</td><td></td><td></td><td>${fmtR(tot.gasto)}</td><td>${fmtN(tot.impressoes)}</td><td>${fmtN(tot.cliques)}</td><td>${tot.cliques ? fmtR(tot.gasto/tot.cliques) : "—"}</td><td>${fmtN(tot.leads_meta)}${tot.leads_meta ? ` <small class="dim">R$ ${(tot.gasto/tot.leads_meta).toFixed(2).replace(".",",")}</small>` : ""}</td><td>${tot.link_clicks ? fmtPct(pct(tot.lpv, tot.link_clicks)) : "—"}</td><td>${fmtN(tot.cadastros)}</td><td>${tot.cadastros ? fmtR(tot.gasto/tot.cadastros) : "—"}</td><td>${fmtN(tot.no_grupo)}</td><td>${tot.no_grupo ? fmtR(tot.gasto/tot.no_grupo) : "—"}</td><td></td></tr>`;
     const att = rows.map(x => x.atualizado_em).filter(Boolean).sort().pop();
+    const ml = c.meta_live || {};
+    const metaTxt = ml.error ? ` <span class="late">Leads/Connect/Página da Meta indisponíveis: ${esc(ml.error)}.</span>` : (ml.fetched_at ? ` Leads, connect e página lidos da API da Meta às ${hora(ml.fetched_at)} (cache de 10 min)${(ml.erros||[]).length ? ` <span class="late">· falhas: ${esc(ml.erros.join("; "))}</span>` : ""}.` : "");
     const fora = outros.length ? ` · Fora da tabela (não gera cadastro): ${outros.map(x => `${esc(nomeCamp(x.campanha))} ${fmtR(x.gasto)}`).join(", ")}` : "";
-    $(el).innerHTML = t + `</table></div><div class="note">Verde = custo por cadastro até R$ 8 e por entrada até R$ 12 (referência inicial; ajusto quando tivermos a primeira semana). Gasto da Meta gravado pelo n8n de hora em hora${att ? ` (última gravação ${hora(att)})` : ""}; o painel recarrega a cada 2 min.${fora}</div>`;
+    $(el).innerHTML = t + `</table></div><div class="note">Verde = custo por cadastro até R$ 8 e por entrada até R$ 12 (referência inicial; ajusto quando tivermos a primeira semana). Gasto da Meta gravado pelo n8n de hora em hora${att ? ` (última gravação ${hora(att)})` : ""}; o painel recarrega a cada 2 min.${metaTxt}${fora}</div>`;
   };
   renderCusto(custo.filter(x => !x.alunos), "nao-custo", "Ainda sem gasto registrado nas campanhas [BLACK][NAOALUNOS] — o n8n grava o gasto da Meta de hora em hora.");
   renderCusto(custo.filter(x => x.alunos), "al-custo", "Ainda sem gasto registrado na campanha [BLACK][ALUNOS] — o n8n grava o gasto da Meta de hora em hora.");
