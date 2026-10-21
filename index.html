@@ -266,6 +266,13 @@ footer{color:var(--muted);font-size:11.5px;margin-top:22px;text-align:center}
   </div>
 </div>
 
+<div class="card">
+  <div class="card-head">
+    <div><h2>Teste da v4 · rodízio 20%</h2><div class="hint" id="nao-teste-hint">Quem abre /v4 cai por sorteio em v4, v2, v2b, v2c ou v5 (fixo por visitante, 30 dias) · visitantes únicos · a decisão é pela % que entrou no grupo</div></div>
+  </div>
+  <div class="rs-wrap"><table class="rs" id="nao-teste" style="min-width:0"></table></div>
+</div>
+
 <div class="grid g-two">
   <div class="card">
     <div class="card-head">
@@ -468,6 +475,17 @@ function renderCadastros(c){
   const pv = (na.por_versao||[]);
   $("nao-versao").innerHTML = `<tr><th>Versão</th><th>Cadastros</th><th>Superior</th><th>Clicaram</th><th>No grupo</th><th>% no grupo</th></tr>` + pv.map(x =>
     `<tr><td>${esc(x.versao)}</td><td>${fmtN(x.cadastros)}</td><td>${fmtN(x.superior)}</td><td>${fmtN(x.clicaram)}</td><td>${fmtN(x.no_grupo)}</td><td>${fmtPct(pct(x.no_grupo, x.cadastros))}</td></tr>`).join("") || `<tr><td>—</td></tr>`;
+  // 21/10: teste da v4 — visitantes (id anônimo) × cadastros marcados pelo rodízio; 🏆 na melhor % no grupo com pelo menos 50 visitantes
+  const tv = na.teste_v4 || {}, tp = tv.paginas || [];
+  const totV = tp.reduce((s, x) => s + (x.visitantes || 0), 0), totC = tp.reduce((s, x) => s + (x.cadastros || 0), 0);
+  const elegiveis = tp.filter(x => (x.visitantes || 0) >= 50), bestG = elegiveis.length ? Math.max(...elegiveis.map(x => pct(x.no_grupo, x.visitantes) || 0)) : null;
+  $("nao-teste-hint").textContent = (tv.inicio ? `Desde ${hora(tv.inicio)} · ` : "Ainda sem visita pelo rodízio · ") +
+    `${fmtN(totV)} visitantes, ${fmtN(totC)} cadastros (${fmtPct(pct(totC, totV))}) · cada página deve receber ~20% dos visitantes · a decisão é pela % que entrou no grupo (mínimo 50 visitantes por página)`;
+  $("nao-teste").innerHTML = `<tr><th>Página</th><th>Visitantes</th><th>Fatia</th><th>Cadastros</th><th>% cadastro</th><th>Superior</th><th>Clicaram</th><th>No grupo</th><th>% no grupo</th><th>Hoje</th></tr>` + tp.map(x => {
+    const pc = pct(x.cadastros, x.visitantes), pg = pct(x.no_grupo, x.visitantes);
+    const top = bestG != null && (x.visitantes || 0) >= 50 && pg === bestG && bestG > 0;
+    return `<tr><td>${top ? "🏆 " : ""}<a href="https://revolucaodoestudo.com.br/${esc(x.versao)}/" target="_blank" rel="noopener" style="color:inherit">${esc(x.versao)}</a></td><td>${fmtN(x.visitantes)}</td><td>${fmtPct(pct(x.visitantes, totV))}</td><td>${fmtN(x.cadastros)}</td><td><b>${fmtPct(pc)}</b></td><td>${fmtN(x.superior)}</td><td>${fmtN(x.clicaram)}</td><td>${fmtN(x.no_grupo)}</td><td><span class="bar" style="width:${Math.round(60 * (pg || 0) / Math.max(0.01, bestG || pg || 0))}px"></span><b>${fmtPct(pg)}</b></td><td>${fmtN(x.hoje)}</td></tr>`;
+  }).join("") || `<tr><td>—</td></tr>`;
   const rg = na.regua || {};
   $("nao-regua").innerHTML = [["Régua: enviados", fmtN(rg.enviados), "toque de 5 min (template)"], ["Entraram depois do toque", fmtN(rg.entraram_depois), fmtPct(pct(rg.entraram_depois, rg.enviados)) + " dos enviados"], ["Pulados / falhas", `${fmtN(rg.pulados)} / ${fmtN(rg.falhas)}`, rg.ultimo ? "último toque " + hora(rg.ultimo) : "nenhum toque ainda"]]
     .map(([l,v,s]) => `<div class="tk"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("");
