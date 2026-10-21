@@ -162,6 +162,14 @@ footer{color:var(--muted);font-size:11.5px;margin-top:22px;text-align:center}
   <div class="note" id="cad-al-note"></div>
 </div>
 
+<!-- CUSTO POR CADASTRO — CAMPANHA META DOS ALUNOS (21/10) -->
+<div class="card">
+  <div class="card-head">
+    <div><h2>Custo por cadastro e por entrada no grupo — campanha Meta</h2><div class="hint">Só a campanha [BLACK][ALUNOS] · gasto da Meta (meta_ads_insights, atualizado de hora em hora) × cadastros e entradas atribuídos pelo utm_campaign</div></div>
+  </div>
+  <div id="al-custo"></div>
+</div>
+
 <div class="grid g-two">
   <!-- FUNIL POR ÂNGULO -->
   <div class="card">
@@ -236,7 +244,7 @@ footer{color:var(--muted);font-size:11.5px;margin-top:22px;text-align:center}
 
 <div class="card">
   <div class="card-head">
-    <div><h2>Custo por cadastro e por entrada no grupo — por campanha</h2><div class="hint">Gasto da Meta (meta_ads_insights, dia a dia) × cadastros e entradas atribuídos pela UTM da campanha · gasto chega com atraso de até 1 dia</div></div>
+    <div><h2>Custo por cadastro e por entrada no grupo — por campanha</h2><div class="hint">Só campanhas [BLACK][NAOALUNOS] · gasto da Meta (meta_ads_insights, atualizado de hora em hora) × cadastros e entradas atribuídos pelo utm_campaign · casamento ignora as tags [LEADS]/[META] do nome na Meta</div></div>
   </div>
   <div id="nao-custo"></div>
 </div>
@@ -408,20 +416,26 @@ function renderCadastros(c){
     ["Entraram por fora", fmtN((gr.ativos||0)-(gr.da_pagina||0)), "link direto, sem cadastro"],
   ].map(([l,v,s]) => `<div class="tk"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("");
 
-  // custo por campanha (alunos + não alunos; a aba de não alunos mostra todas para comparar)
+  // custo por campanha — cada aba só vê as suas; gasto × cadastros casados por chave normalizada (o nome na Meta ganhou [LEADS], o utm_campaign ficou o antigo)
   const custo = (c.custo||[]);
-  if (!custo.length) $("nao-custo").innerHTML = `<div class="all-ok">Ainda sem gasto registrado — as campanhas começam 19/10 às 06h e o gasto da Meta chega no Data Core no dia seguinte.</div>`;
-  else {
-    let t = `<div class="rs-wrap"><table class="rs"><tr><th>Campanha</th><th>Gasto</th><th>Impressões</th><th>Cliques</th><th>CPC</th><th>Cadastros</th><th>Custo / cadastro</th><th>No grupo</th><th>Custo / entrada</th><th>Gasto até</th></tr>`;
+  const renderCusto = (rows, el, vazio) => {
+    const cap = rows.filter(x => x.captacao), outros = rows.filter(x => !x.captacao);
+    if (!cap.length) { $(el).innerHTML = `<div class="all-ok">${vazio}</div>`; return; }
+    let t = `<div class="rs-wrap"><table class="rs"><tr><th>Campanha</th><th>Conta</th><th>Gasto</th><th>Impressões</th><th>Cliques</th><th>CPC</th><th>Cadastros</th><th>Custo / cadastro</th><th>No grupo</th><th>Custo / entrada</th><th>Gasto até</th></tr>`;
     const tot = {gasto:0, impressoes:0, cliques:0, cadastros:0, no_grupo:0};
-    for (const x of custo){
+    for (const x of cap){
       for (const k in tot) tot[k] += Number(x[k]||0);
-      t += `<tr><td title="${esc(x.campanha)}"><span class="bdg ${x.alunos ? "disparo" : "meta"}">${x.alunos ? "alunos" : "não alunos"}</span> ${esc(nomeCamp(x.campanha))}</td><td>${fmtR(x.gasto)}</td><td>${fmtN(x.impressoes)}</td><td>${fmtN(x.cliques)}</td><td>${x.cliques ? fmtR(x.gasto/x.cliques) : "—"}</td>` +
-           `<td>${fmtN(x.cadastros)}</td><td class="${x.cadastros && x.gasto/x.cadastros <= 8 ? "ok" : x.cadastros ? "mid" : ""}">${x.cadastros ? fmtR(x.gasto/x.cadastros) : "—"}</td><td>${fmtN(x.no_grupo)}</td><td class="${x.no_grupo && x.gasto/x.no_grupo <= 12 ? "ok" : x.no_grupo ? "mid" : ""}">${x.no_grupo ? fmtR(x.gasto/x.no_grupo) : "—"}</td><td class="dim">${x.ultimo_dia ? ddmm(x.ultimo_dia) : "—"}</td></tr>`;
+      const semGasto = x.gasto == null;
+      t += `<tr><td title="${esc(x.campanha_meta || x.campanha)}">${esc(nomeCamp(x.campanha))}${semGasto ? ` <span class="bdg disparo" title="nenhuma campanha na Meta casou com este utm_campaign">sem gasto</span>` : ""}</td><td class="dim">${esc((x.conta||"—").replace(/^SCVP - /,""))}</td><td>${fmtR(x.gasto)}</td><td>${fmtN(x.impressoes)}</td><td>${fmtN(x.cliques)}</td><td>${x.cliques ? fmtR(x.gasto/x.cliques) : "—"}</td>` +
+           `<td>${fmtN(x.cadastros)}</td><td class="${x.cadastros && x.gasto ? (x.gasto/x.cadastros <= 8 ? "ok" : "mid") : ""}">${x.cadastros && x.gasto ? fmtR(x.gasto/x.cadastros) : "—"}</td><td>${fmtN(x.no_grupo)}</td><td class="${x.no_grupo && x.gasto ? (x.gasto/x.no_grupo <= 12 ? "ok" : "mid") : ""}">${x.no_grupo && x.gasto ? fmtR(x.gasto/x.no_grupo) : "—"}</td><td class="dim">${x.ultimo_dia ? ddmm(x.ultimo_dia) : "—"}</td></tr>`;
     }
-    t += `<tr class="tot"><td>Total</td><td>${fmtR(tot.gasto)}</td><td>${fmtN(tot.impressoes)}</td><td>${fmtN(tot.cliques)}</td><td>${tot.cliques ? fmtR(tot.gasto/tot.cliques) : "—"}</td><td>${fmtN(tot.cadastros)}</td><td>${tot.cadastros ? fmtR(tot.gasto/tot.cadastros) : "—"}</td><td>${fmtN(tot.no_grupo)}</td><td>${tot.no_grupo ? fmtR(tot.gasto/tot.no_grupo) : "—"}</td><td></td></tr>`;
-    $("nao-custo").innerHTML = t + `</table></div><div class="note">Verde = custo por cadastro até R$ 8 e por entrada até R$ 12 (referência inicial; ajusto quando tivermos a primeira semana).</div>`;
-  }
+    t += `<tr class="tot"><td>Total</td><td></td><td>${fmtR(tot.gasto)}</td><td>${fmtN(tot.impressoes)}</td><td>${fmtN(tot.cliques)}</td><td>${tot.cliques ? fmtR(tot.gasto/tot.cliques) : "—"}</td><td>${fmtN(tot.cadastros)}</td><td>${tot.cadastros ? fmtR(tot.gasto/tot.cadastros) : "—"}</td><td>${fmtN(tot.no_grupo)}</td><td>${tot.no_grupo ? fmtR(tot.gasto/tot.no_grupo) : "—"}</td><td></td></tr>`;
+    const att = rows.map(x => x.atualizado_em).filter(Boolean).sort().pop();
+    const fora = outros.length ? ` · Fora da tabela (não gera cadastro): ${outros.map(x => `${esc(nomeCamp(x.campanha))} ${fmtR(x.gasto)}`).join(", ")}` : "";
+    $(el).innerHTML = t + `</table></div><div class="note">Verde = custo por cadastro até R$ 8 e por entrada até R$ 12 (referência inicial; ajusto quando tivermos a primeira semana). Gasto da Meta gravado pelo n8n de hora em hora${att ? ` (última gravação ${hora(att)})` : ""}; o painel recarrega a cada 2 min.${fora}</div>`;
+  };
+  renderCusto(custo.filter(x => !x.alunos), "nao-custo", "Ainda sem gasto registrado nas campanhas [BLACK][NAOALUNOS] — o n8n grava o gasto da Meta de hora em hora.");
+  renderCusto(custo.filter(x => x.alunos), "al-custo", "Ainda sem gasto registrado na campanha [BLACK][ALUNOS] — o n8n grava o gasto da Meta de hora em hora.");
 
   $("nao-origens").innerHTML = (na.origens||[]).length ? linhasOrig(na.origens, true) : `<tr><td>Nenhum cadastro ainda.</td></tr>`;
 
@@ -455,7 +469,7 @@ function renderCadastros(c){
   $("nao-regua").innerHTML = [["Régua: enviados", fmtN(rg.enviados), "toque de 5 min (template)"], ["Entraram depois do toque", fmtN(rg.entraram_depois), fmtPct(pct(rg.entraram_depois, rg.enviados)) + " dos enviados"], ["Pulados / falhas", `${fmtN(rg.pulados)} / ${fmtN(rg.falhas)}`, rg.ultimo ? "último toque " + hora(rg.ultimo) : "nenhum toque ainda"]]
     .map(([l,v,s]) => `<div class="tk"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("");
   const sy = c.sync || {};
-  $("sync-nao").innerHTML = [["Último cadastro", sy.leads_at], ["Última entrada em grupo da Black", sy.membros_at], ["Gasto da Meta até", sy.gasto_at]].map(([l, ts]) => `<span>${l}: <b>${ts ? (l.startsWith("Gasto") ? ddmm(ts) : hora(ts)) : "—"}</b></span>`).join("");
+  $("sync-nao").innerHTML = [["Último cadastro", sy.leads_at], ["Última entrada em grupo da Black", sy.membros_at], ["Gasto da Meta até", sy.gasto_at], ["Gasto gravado pelo n8n às", sy.gasto_atualizado_em]].map(([l, ts]) => `<span>${l}: <b>${ts ? (l === "Gasto da Meta até" ? ddmm(ts) : hora(ts)) : "—"}</b></span>`).join("");
 }
 
 function renderAll(d){
