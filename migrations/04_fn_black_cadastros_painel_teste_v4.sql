@@ -16,3 +16,4 @@ revoke all on public.paginas_aulas_visitas from anon, authenticated;
 --    'teste_v4': { inicio, paginas: [ {versao, ordem, visitantes (distinct visitante), visitas, cadastros, superior, clicaram, no_grupo, hoje} ] }
 --    cruzando paginas_aulas_visitas (teste='v4', slug não alunos) × leads com answers.teste='v4', por versão, na ordem v4, v2, v2b, v2c, v5.
 --    Definição completa: select pg_get_functiondef('public.fn_black_cadastros_painel'::regproc);
+-- 3) 21/10 15:08 (migração "black_teste_v4_sem_robos"): vis_v4 ignora user_agent ~* (facebookexternalhit|bot|crawler|spider|headless|preview|fetch) — o robô da Meta executa o script e gravava visita.
