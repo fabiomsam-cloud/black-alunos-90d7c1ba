@@ -152,6 +152,17 @@ footer{color:var(--muted);font-size:11.5px;margin-top:22px;text-align:center}
   </div>
 </div>
 
+<!-- VSL DA TRÍADE — /vslalunos (23/10) -->
+<div class="card">
+  <div class="card-head">
+    <div><h2>VSL da Tríade — quem já assistiu</h2><div class="hint">Página <b>revolucaodoestudo.com.br/vslalunos</b> (Vturb) · a pessoa entra com o WhatsApp · os marcos de 25/50/75/100% são gravados pela página e só contam depois que a pessoa toca no player · origem pelas UTMs do link</div></div>
+    <div class="sync" id="vsl-resumo"></div>
+  </div>
+  <div class="kpis" id="vsl-kpis"></div>
+  <div class="rs-wrap" style="margin-top:12px"><table class="rs" id="vsl-origens"></table></div>
+  <div class="note" id="vsl-note"></div>
+</div>
+
 <!-- CADASTROS PELA PÁGINA / POP-UPS (18/10) -->
 <div class="card">
   <div class="card-head">
@@ -493,9 +504,45 @@ function renderCadastros(c){
   $("sync-nao").innerHTML = [["Último cadastro", sy.leads_at], ["Última entrada em grupo da Black", sy.membros_at], ["Gasto da Meta até", sy.gasto_at], ["Gasto gravado pelo n8n às", sy.gasto_atualizado_em]].map(([l, ts]) => `<span>${l}: <b>${ts ? (l === "Gasto da Meta até" ? ddmm(ts) : hora(ts)) : "—"}</b></span>`).join("");
 }
 
+// 23/10: VSL da Tríade (/vslalunos) — fn_black_vsl_painel + gasto da campanha de anúncios da VSL (Meta ao vivo)
+function renderVsl(v){
+  if (!v || v.error){ $("vsl-note").textContent = v?.error ? "Erro ao ler a VSL: " + v.error : "Sem dados da VSL."; return; }
+  const r = v.resumo || {}, e = r.entraram || 0, com = v.comentarios || {};
+  $("vsl-resumo").innerHTML = `<span>Hoje: <b>${fmtN(r.hoje)}</b> entraram</span><span>Última atividade: <b>${hora(r.ultima_em)}</b></span>`;
+  const tks = [
+    ["Entraram na página", fmtN(e), `${fmtN(r.voltaram)} voltaram mais de uma vez`, ""],
+    ["Assistiram 25%", fmtN(r.p25), fmtPct(pct(r.p25, e)) + " de quem entrou", ""],
+    ["Assistiram 50%", fmtN(r.p50), fmtPct(pct(r.p50, e)) + " de quem entrou", "hi"],
+    ["Assistiram 75%", fmtN(r.p75), fmtPct(pct(r.p75, e)) + " de quem entrou", ""],
+    ["Até o fim", fmtN(r.p100), fmtPct(pct(r.p100, e)) + " de quem entrou", "ok"],
+    ["Comentários", fmtN(com.total), `${fmtN(r.comentaram)} pessoas comentaram`, ""],
+  ];
+  $("vsl-kpis").innerHTML = tks.map(([l, val, s, c]) => `<div class="tk ${c}"><div class="l">${l}</div><div class="v">${val}</div><div class="s">${s}</div></div>`).join("");
+  const og = v.por_origem || [];
+  const maxF = Math.max(0.01, ...og.map(o => pct(o.p100, o.entraram) || 0));
+  let t = `<tr><th>Origem</th><th>Entraram</th><th>25%</th><th>50%</th><th>75%</th><th>Até o fim</th><th>% até o fim</th><th>Fora do grupo ao entrar</th><th>Entraram no grupo depois</th></tr>`;
+  for (const o of og){
+    const pf = pct(o.p100, o.entraram);
+    t += `<tr><td>${esc(o.origem)}</td><td>${fmtN(o.entraram)}</td><td>${fmtN(o.p25)}</td><td>${fmtN(o.p50)} <small>${fmtPct(pct(o.p50, o.entraram))}</small></td><td>${fmtN(o.p75)}</td><td>${fmtN(o.p100)}</td>` +
+         `<td><span class="bar" style="width:${Math.round(60*(pf||0)/maxF)}px"></span>${fmtPct(pf)}</td><td>${fmtN(o.fora_ao_entrar)}</td><td>${fmtN(o.entraram_grupo_depois)}</td></tr>`;
+  }
+  t += `<tr class="tot"><td>Total</td><td>${fmtN(e)}</td><td>${fmtN(r.p25)}</td><td>${fmtN(r.p50)} <small>${fmtPct(pct(r.p50, e))}</small></td><td>${fmtN(r.p75)}</td><td>${fmtN(r.p100)}</td><td>${fmtPct(pct(r.p100, e))}</td><td>${fmtN(r.fora_ao_entrar)}</td><td>${fmtN(r.entraram_grupo_depois)}</td></tr>`;
+  $("vsl-origens").innerHTML = og.length ? t : `<tr><td>Ninguém entrou na página ainda.</td></tr>`;
+  // anúncios da VSL: gasto da Meta × quem entrou pelos anúncios (utm_medium=pago)
+  const ads = og.filter(o => o.origem.startsWith("Anúncio Meta"));
+  const adsE = ads.reduce((s, o) => s + (o.entraram || 0), 0), ads50 = ads.reduce((s, o) => s + (o.p50 || 0), 0);
+  const gm = (v.meta || []).reduce((s, m) => s + (m.gasto_meta || 0), 0), lc = (v.meta || []).reduce((s, m) => s + (m.link_clicks || 0), 0), lpv = (v.meta || []).reduce((s, m) => s + (m.lpv || 0), 0);
+  const anuncios = (v.meta || []).length
+    ? `Anúncios da VSL (Meta, desde 23/10): gasto <b>${fmtR(gm)}</b> · ${fmtN(lc)} cliques no link · ${fmtN(lpv)} visualizações da página · <b>${fmtN(adsE)}</b> entraram pelos anúncios${adsE ? ` (${fmtR(gm/adsE)} por entrada)` : ""} · ${fmtN(ads50)} ${ads50 === 1 ? "viu" : "viram"} 50%${ads50 ? ` (${fmtR(gm/ads50)} cada)` : ""}. `
+    : "";
+  const pd = (v.por_dia || []).slice(-7).map(x => `${ddmm(x.dia)}: <b>${fmtN(x.entraram)}</b> (${fmtN(x.p50)} viram 50% · ${fmtN(x.p100)} até o fim)`).join(" · ");
+  $("vsl-note").innerHTML = anuncios + (pd ? "Por dia: " + pd + "." : "") + ` Fora do grupo ao entrar: ${fmtN(r.fora_ao_entrar)} (a página mostra a faixa do grupo e a Anne manda o template em 5 min) · ${fmtN(r.no_grupo_ao_entrar)} já estavam no grupo.`;
+}
+
 function renderAll(d){
   renderRail(d);
   try { renderCadastros(d.cadastros_painel); } catch (e) { console.error("cadastros", e); }
+  try { renderVsl(d.vsl); } catch (e) { console.error("vsl", e); }
   const base = Object.fromEntries((d.base||[]).map(b => [b.angulo, b]));
   const pa = Object.fromEntries((d.por_angulo||[]).map(a => [a.angulo, a]));
   const disp = ORDEM.filter(a => (base[a]?.canal) === "disparo");
