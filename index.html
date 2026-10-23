@@ -88,6 +88,17 @@ header{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:10px}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
 .note{font-size:11.5px;color:var(--muted);margin-top:12px}
+/* 23/10: comentários da VSL — fechados até o clique */
+.vsl-cbtn{margin-top:14px;font:600 13px var(--body);color:var(--cyan);background:var(--surface-2);border:1px solid var(--grid);border-radius:10px;padding:9px 14px;cursor:pointer}
+.vsl-cbtn:hover{border-color:var(--cyan)}
+.vsl-coms{margin-top:10px;max-height:560px;overflow-y:auto;border:1px solid var(--grid);border-radius:12px}
+.vsl-com{padding:11px 14px;border-bottom:1px solid var(--grid)}
+.vsl-com:last-child{border-bottom:0}
+.vsl-com .q{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.vsl-com .q b{color:var(--ink);font-weight:700}
+.vsl-com .q span{color:var(--muted);font-size:11.5px}
+.vsl-com p{margin:4px 0 0;color:var(--ink-2);white-space:pre-line;overflow-wrap:anywhere}
+.vsl-com.oculto{opacity:.55}
 .all-ok{display:flex;align-items:center;gap:12px;padding:14px;border-radius:12px;background:var(--surface-2);color:var(--muted);font-size:13px}
 .err{background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.4);border-radius:12px;padding:16px;color:#b42318;font-size:13px;margin-bottom:12px;display:none}
 .sync{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--muted)}
@@ -161,6 +172,8 @@ footer{color:var(--muted);font-size:11.5px;margin-top:22px;text-align:center}
   <div class="kpis" id="vsl-kpis"></div>
   <div class="rs-wrap" style="margin-top:12px"><table class="rs" id="vsl-origens"></table></div>
   <div class="note" id="vsl-note"></div>
+  <button class="vsl-cbtn" id="vsl-cbtn" onclick="abrirComentarios()">💬 Ver os comentários da VSL</button>
+  <div class="vsl-coms" id="vsl-coms" hidden></div>
 </div>
 
 <!-- CADASTROS PELA PÁGINA / POP-UPS (18/10) -->
@@ -508,6 +521,8 @@ function renderCadastros(c){
 function renderVsl(v){
   if (!v || v.error){ $("vsl-note").textContent = v?.error ? "Erro ao ler a VSL: " + v.error : "Sem dados da VSL."; return; }
   const r = v.resumo || {}, e = r.entraram || 0, com = v.comentarios || {};
+  $("vsl-cbtn").dataset.lbl = `💬 Ver os ${fmtN(com.total)} comentários da VSL`;
+  if ($("vsl-coms").hidden) $("vsl-cbtn").textContent = $("vsl-cbtn").dataset.lbl;
   $("vsl-resumo").innerHTML = `<span>Hoje: <b>${fmtN(r.hoje)}</b> entraram</span><span>Última atividade: <b>${hora(r.ultima_em)}</b></span>`;
   const tks = [
     ["Entraram na página", fmtN(e), `${fmtN(r.voltaram)} voltaram mais de uma vez`, ""],
@@ -537,6 +552,24 @@ function renderVsl(v){
     : "";
   const pd = (v.por_dia || []).slice(-7).map(x => `${ddmm(x.dia)}: <b>${fmtN(x.entraram)}</b> (${fmtN(x.p50)} viram 50% · ${fmtN(x.p100)} até o fim)`).join(" · ");
   $("vsl-note").innerHTML = anuncios + (pd ? "Por dia: " + pd + "." : "") + ` Fora do grupo ao entrar: ${fmtN(r.fora_ao_entrar)} (a página mostra a faixa do grupo e a Anne manda o template em 5 min) · ${fmtN(r.no_grupo_ao_entrar)} já estavam no grupo.`;
+}
+
+// comentários da VSL: só carregam no clique (rota ?vsl=comentarios da edge); clicar de novo fecha
+async function abrirComentarios(){
+  const box = $("vsl-coms"), btn = $("vsl-cbtn");
+  if (!box.hidden){ box.hidden = true; btn.textContent = btn.dataset.lbl || "💬 Ver os comentários da VSL"; return; }
+  btn.disabled = true; btn.textContent = "Carregando comentários…";
+  try{
+    const r = await fetch(API + "?k=" + encodeURIComponent(K) + "&vsl=comentarios", {headers:{Authorization:"Bearer "+ANON, apikey:ANON}});
+    const d = await r.json();
+    if (d.error) throw new Error(d.error);
+    const cs = d.comentarios || [];
+    box.innerHTML = cs.length ? cs.map(c => `<div class="vsl-com${c.oculto ? " oculto" : ""}"><div class="q"><b>${esc(c.nome || "Aluno")}</b><span>${hora(c.created_at)}${c.oculto ? " · oculto na página" : ""}</span></div><p>${esc(c.texto)}</p></div>`).join("")
+      : `<div class="vsl-com"><p>Nenhum comentário ainda.</p></div>`;
+    box.hidden = false; btn.textContent = `▴ Esconder os ${fmtN(cs.length)} comentários`;
+  }catch(e){
+    btn.textContent = btn.dataset.lbl || "💬 Ver os comentários da VSL"; alert("Não foi possível carregar os comentários: " + e.message);
+  }finally{ btn.disabled = false; }
 }
 
 function renderAll(d){
