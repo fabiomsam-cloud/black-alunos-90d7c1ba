@@ -163,6 +163,27 @@ footer{color:var(--muted);font-size:11.5px;margin-top:22px;text-align:center}
   </div>
 </div>
 
+<!-- FECHAMENTO DOS DISPAROS (26/10) -->
+<div class="card">
+  <div class="card-head">
+    <div><h2>Fechamento dos disparos para a base</h2><div class="hint">Disparos de captação para o grupo encerrados em <b>segunda, 26/10</b> · 13/10 → 26/10 · rascunhos não enviados foram apagados · entrada no grupo atribuída à onda quando acontece depois do envio (quem recebeu mais de uma onda pode contar em mais de uma linha)</div></div>
+    <span class="bdg done">ENCERRADO</span>
+  </div>
+  <div class="kpis" id="fch-kpis"></div>
+  <div class="rs-wrap" style="margin-top:14px" id="fch-ondas"></div>
+  <h3 style="font-family:var(--disp);font-size:14.5px;margin:20px 0 4px">Texto × vídeo × imagem — testes na mesma base e no mesmo horário</h3>
+  <div class="hint" style="margin-bottom:8px">Cada bloco é um sorteio da mesma lista, enviado junto · em verde, quem colocou mais gente no grupo</div>
+  <div class="rs-wrap" id="fch-testes"></div>
+  <h3 style="font-family:var(--disp);font-size:14.5px;margin:20px 0 6px">O que aprendemos</h3>
+  <ul style="margin:0 0 0 18px;color:var(--ink-2);font-size:13px;line-height:1.6">
+    <li>Texto venceu o vídeo em todos os testes feitos na mesma base e no mesmo horário. A imagem perdeu para o texto, mas teve menos opt-out.</li>
+    <li>A base da plataforma (ângulos 1 a 8) rendeu muito mais no primeiro convite do que a base de fora da plataforma.</li>
+    <li>O texto B, com a pergunta “você ainda estuda para concurso…?”, quase dobrou o opt-out. O A2 manteve a entrada com bem menos saídas.</li>
+    <li>Na base fria, filtrar por sinal de vida recente (15 quente, com o Jev) funcionou melhor que disparar para a lista inteira.</li>
+    <li>Telefone desatualizado era uma brecha real: a campanha do número alternativo converteu acima das listas frias.</li>
+  </ul>
+</div>
+
 <!-- VSL DA TRÍADE — /vslalunos (23/10) -->
 <div class="card">
   <div class="card-head">
@@ -572,10 +593,69 @@ async function abrirComentarios(){
   }finally{ btn.disabled = false; }
 }
 
+
+// 26/10: fechamento dos disparos da base (ondas, testes de formato, totais)
+const FORMATO = {black_alunos_convite_v1:"vídeo 1", black_alunos_convite2_v1:"vídeo 2", black_alunos_texto_a_v1:"texto A", black_alunos_texto_b_v1:"texto B",
+  black_alunos_texto_a2_v1:"texto A2", black_alunos_cadastro_v2:"cadastro", black_alunos_eamanha_texto_v1:"texto", black_alunos_eamanha_img_v1:"texto + imagem"};
+const ONDAS = [
+  ["1º convite · ângulos 1 a 8", "14–15/10", /\]\s*(1|2|3|4|5|5b|6|7a|8) ·/],
+  ["Testes 7b e 9 + retoque", "16/10", /\]\s*(7b · teste|9 · teste 1000|R ·)/],
+  ["Fora da plataforma · 10 e 11", "16/10", /\]\s*(10|11) ·/],
+  ["2º toque · quentes (T2A)", "21/10", /\]\s*T2A/],
+  ["Número alternativo + sem fone", "22/10", /\]\s*NA ·/],
+  ["Teste de formato · lista 9", "22/10", /\]\s*9 · teste (texto|cadastro|vídeo)/],
+  ["12 · mentoria ou pós 2024", "22/10", /\]\s*12 ·/],
+  ["13 · low ticket 2025-26", "23/10", /\]\s*13 ·/],
+  ["14 · eventos e assinaturas", "23–24/10", /\]\s*14 ·/],
+  ["15 quente · sinal + Jev", "24/10", /\]\s*15 · quente/],
+  ["É amanhã · texto × imagem", "26/10", /\]\s*AMANHÃ/],
+];
+const TESTES = [
+  ["Lista 9 · 22/10", /\]\s*9 · teste (texto|cadastro|vídeo)/],
+  ["Lista 14 · 23/10", /\]\s*14 · teste/],
+  ["É amanhã · 26/10", /\]\s*AMANHÃ · teste/],
+];
+function renderFechamento(d){
+  const f = d.fechamento || {}; const camps = (d.campanhas||[]).filter(c => (c.sent||0) > 0);
+  $("fch-kpis").innerHTML = [
+    ["Números com disparo", fmtN(f.numeros_unicos), "telefones únicos", ""],
+    ["Mensagens enviadas", fmtN(f.mensagens), "todas as ondas", ""],
+    ["Entraram no grupo depois", fmtN(f.entraram_apos), fmtPct(pct(f.entraram_apos, f.numeros_unicos)) + " dos números", "hi"],
+    ["Opt-outs", fmtN(f.optouts), fmtPct(pct(f.optouts, f.mensagens)) + " das mensagens", ""],
+    ["Grupo hoje", fmtN(d.grupo?.ativos), fmtN(d.grupo?.saidas) + " saíram", "ok"],
+    ["Ondas", String(ONDAS.filter(o => camps.some(c => o[2].test(c.name))).length), "de 13/10 a 26/10", ""],
+  ].map(([l,v,sub,cls]) => `<div class="tk ${cls}"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${sub}</div></div>`).join("");
+  let t = `<table class="rs"><tr><th>Onda</th><th>Data</th><th>Formato</th><th>Enviados</th><th>Entraram</th><th>% grupo</th><th>Opt-out</th><th>% opt-out</th></tr>`;
+  let T = {sent:0, grupo:0, opt:0};
+  for (const [nome, data, re] of ONDAS){
+    const cs = camps.filter(c => re.test(c.name)); if (!cs.length) continue;
+    const sent = cs.reduce((a,c)=>a+(c.sent||0),0), gr = cs.reduce((a,c)=>a+(c.grupo||0),0), op = cs.reduce((a,c)=>a+(c.optout_novos||0),0);
+    T.sent += sent; T.grupo += gr; T.opt += op;
+    const fm = [...new Set(cs.map(c => FORMATO[c.template] || c.template || "—"))].join(" · ");
+    const pg = pct(gr, sent), po = pct(op, sent);
+    t += `<tr><td>${esc(nome)}</td><td>${data}</td><td>${esc(fm)}</td><td>${fmtN(sent)}</td><td>${fmtN(gr)}</td>
+      <td class="${pg >= 10 ? "ok" : pg >= 4 ? "mid" : "bad"}">${fmtPct(pg)}</td><td>${fmtN(op)}</td><td class="${po >= 4 ? "bad" : po >= 2 ? "mid" : ""}">${fmtPct(po)}</td></tr>`;
+  }
+  t += `<tr class="tot"><td>Total</td><td></td><td></td><td>${fmtN(T.sent)}</td><td>${fmtN(T.grupo)}</td><td>${fmtPct(pct(T.grupo, T.sent))}</td><td>${fmtN(T.opt)}</td><td>${fmtPct(pct(T.opt, T.sent))}</td></tr>`;
+  $("fch-ondas").innerHTML = t + `</table>`;
+  let u = `<table class="rs"><tr><th>Teste</th><th>Formato</th><th>Enviados</th><th>Entraram</th><th>% grupo</th><th>Opt-out</th><th>% opt-out</th></tr>`;
+  for (const [nome, re] of TESTES){
+    const cs = camps.filter(c => re.test(c.name)); if (!cs.length) continue;
+    const best = Math.max(...cs.map(c => pct(c.grupo, c.sent) || 0));
+    cs.forEach((c, i) => {
+      const pg = pct(c.grupo, c.sent), po = pct(c.optout_novos, c.sent);
+      u += `<tr><td>${i ? "" : esc(nome)}</td><td>${esc(FORMATO[c.template] || c.template || "—")}</td><td>${fmtN(c.sent)}</td><td>${fmtN(c.grupo)}</td>
+        <td class="${pg === best ? "ok" : ""}">${fmtPct(pg)}</td><td>${fmtN(c.optout_novos)}</td><td class="${po >= 3 ? "bad" : ""}">${fmtPct(po)}</td></tr>`;
+    });
+  }
+  $("fch-testes").innerHTML = u + `</table>`;
+}
+
 function renderAll(d){
   renderRail(d);
   try { renderCadastros(d.cadastros_painel); } catch (e) { console.error("cadastros", e); }
   try { renderVsl(d.vsl); } catch (e) { console.error("vsl", e); }
+  try { renderFechamento(d); } catch (e) { console.error("fechamento", e); }
   const base = Object.fromEntries((d.base||[]).map(b => [b.angulo, b]));
   const pa = Object.fromEntries((d.por_angulo||[]).map(a => [a.angulo, a]));
   const disp = ORDEM.filter(a => (base[a]?.canal) === "disparo");
