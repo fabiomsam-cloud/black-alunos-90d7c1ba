@@ -349,7 +349,7 @@ footer{color:var(--muted);font-size:11.5px;margin-top:22px;text-align:center}
 
 <div class="card">
   <div class="card-head">
-    <div><h2>Teste da v4 · rodízio 20%</h2><div class="hint" id="nao-teste-hint">Quem abre /v4 cai por sorteio em v4, v2, v2b, v2c ou v5 (fixo por visitante, 30 dias) · visitantes únicos · a decisão é pela % que entrou no grupo</div></div>
+    <div><h2>Teste da v4 · rodízio</h2><div class="hint" id="nao-teste-hint">Fase 1 (21 a 28/10): v4, v2, v2b, v2c e v5 a 20% · Fase 2 (desde 28/10 11h): só v2b e v2c, 50% cada · fixo por visitante · visitantes únicos · a decisão é pela % que entrou no grupo</div></div>
   </div>
   <div class="rs-wrap"><table class="rs" id="nao-teste" style="min-width:0"></table></div>
 </div>
@@ -561,7 +561,7 @@ function renderCadastros(c){
   const totV = tp.reduce((s, x) => s + (x.visitantes || 0), 0), totC = tp.reduce((s, x) => s + (x.cadastros || 0), 0);
   const elegiveis = tp.filter(x => (x.visitantes || 0) >= 50), bestG = elegiveis.length ? Math.max(...elegiveis.map(x => pct(x.no_grupo, x.visitantes) || 0)) : null;
   $("nao-teste-hint").textContent = (tv.inicio ? `Desde ${hora(tv.inicio)} · ` : "Ainda sem visita pelo rodízio · ") +
-    `${fmtN(totV)} visitantes, ${fmtN(totC)} cadastros (${fmtPct(pct(totC, totV))}) · cada página deve receber ~20% dos visitantes · a decisão é pela % que entrou no grupo (mínimo 50 visitantes por página)`;
+    `${fmtN(totV)} visitantes, ${fmtN(totC)} cadastros (${fmtPct(pct(totC, totV))}) · fase 1 (21 a 28/10): 5 páginas a 20% · fase 2 (desde 28/10 11h): só v2b e v2c, 50% cada · a decisão é pela % que entrou no grupo`;
   $("nao-teste").innerHTML = `<tr><th>Página</th><th>Visitantes</th><th>Fatia</th><th>Cadastros</th><th>% cadastro</th><th>Superior</th><th>Clicaram</th><th>No grupo</th><th>% no grupo</th><th>Hoje</th></tr>` + tp.map(x => {
     const pc = pct(x.cadastros, x.visitantes), pg = pct(x.no_grupo, x.visitantes);
     const top = bestG != null && (x.visitantes || 0) >= 50 && pg === bestG && bestG > 0;
