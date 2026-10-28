@@ -163,6 +163,18 @@ footer{color:var(--muted);font-size:11.5px;margin-top:22px;text-align:center}
   </div>
 </div>
 
+<!-- VENDAS DA TRÍADE (27/10) -->
+<div class="card">
+  <div class="card-head">
+    <div><h2>Vendas da Tríade do Estudo Inteligente</h2><div class="hint">Oferta da live de <b>terça, 27/10</b> · 12x R$ 149,77 · bônus de 2 anos até meia-noite de Brasília · faturas pagas na Hubla desde 27/10 · <b>líquido contratado</b> conta as 12 parcelas do parcelado inteligente (só a 1ª já foi paga) · "pelo disparo" = recebeu a mensagem de venda antes de pagar</div></div>
+    <span class="bdg running">AO VIVO</span>
+  </div>
+  <div class="kpis" id="vd-kpis"></div>
+  <div class="rs-wrap" style="margin-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px">
+    <div id="vd-momentos"></div><div id="vd-formas"></div><div id="vd-origens"></div>
+  </div>
+</div>
+
 <!-- FECHAMENTO DOS DISPAROS (26/10) -->
 <div class="card">
   <div class="card-head">
@@ -651,10 +663,32 @@ function renderFechamento(d){
   $("fch-testes").innerHTML = u + `</table>`;
 }
 
+const MOMENTO = {antes: "Antes da live", live: "Durante a live (até 20h33)", disparo: "Depois do disparo de venda (20h33)"};
+function renderVendas(v){
+  if (!v) return;
+  const o = v.onboarding || {};
+  $("vd-kpis").innerHTML = [
+    ["Compradores", fmtN(v.compradores), fmtN(v.faturas) + " faturas pagas", "ok"],
+    ["Líquido contratado", fmtR0(v.liquido_contratado), "bruto " + fmtR0(v.bruto_contratado), "ok"],
+    ["Líquido já recebido", fmtR0(v.liquido_recebido), "cartão 12x + Pix + 1ª parcela", ""],
+    ["Pelo disparo de venda", fmtN(v.via_disparo), fmtN(v.disparo_enviados) + " mensagens enviadas", "hi"],
+    ["Tentaram e não pagaram", fmtN(v.pendentes_nao_pagas), "pendentes ou recusadas", ""],
+    ["Onboarding", fmtN(o.acesso_3) + " / " + fmtN(v.compradores), fmtN(o.boas_vindas) + " boas-vindas · " + fmtN(o.senha) + " criaram senha", ""],
+  ].map(([l,x,sub,cls]) => `<div class="tk ${cls}"><div class="l">${l}</div><div class="v">${x}</div><div class="s">${sub}</div></div>`).join("");
+  const tab = (tit, cols, rows) => `<table class="rs"><tr>${[tit, ...cols].map(c => `<th>${c}</th>`).join("")}</tr>${rows.join("")}</table>`;
+  $("vd-momentos").innerHTML = tab("Quando comprou", ["Compradores", "Líquido contratado"],
+    (v.momentos||[]).map(m => `<tr><td>${esc(MOMENTO[m.momento] || m.momento)}</td><td>${fmtN(m.compradores)}</td><td>${fmtR0(m.liquido_contratado)}</td></tr>`));
+  $("vd-formas").innerHTML = tab("Forma de pagamento", ["Compradores", "Líquido contratado"],
+    (v.formas||[]).map(m => `<tr><td>${esc(m.forma)}</td><td>${fmtN(m.compradores)}</td><td>${fmtR0(m.liquido_contratado)}</td></tr>`));
+  $("vd-origens").innerHTML = tab("Origem do link", ["Compradores"],
+    (v.origens||[]).map(m => `<tr><td>${esc(m.origem)}</td><td>${fmtN(m.compradores)}</td></tr>`));
+}
+
 function renderAll(d){
   renderRail(d);
   try { renderCadastros(d.cadastros_painel); } catch (e) { console.error("cadastros", e); }
   try { renderVsl(d.vsl); } catch (e) { console.error("vsl", e); }
+  try { renderVendas(d.vendas); } catch (e) { console.error("vendas", e); }
   try { renderFechamento(d); } catch (e) { console.error("fechamento", e); }
   const base = Object.fromEntries((d.base||[]).map(b => [b.angulo, b]));
   const pa = Object.fromEntries((d.por_angulo||[]).map(a => [a.angulo, a]));
