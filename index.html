@@ -173,6 +173,14 @@ footer{color:var(--muted);font-size:11.5px;margin-top:22px;text-align:center}
   <div class="rs-wrap" style="margin-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px">
     <div id="vd-momentos"></div><div id="vd-formas"></div><div id="vd-origens"></div>
   </div>
+  <h3 style="font-family:var(--disp);font-size:14.5px;margin:20px 0 4px">Quem vendeu mais · pela UTM do link</h3>
+  <div class="hint" style="margin-bottom:8px">utm_term do link usado na compra · whatsapp-grupo = links postados no grupo · whatsapp-anne-vendedora = link da Anne (disparo e conversa)</div>
+  <div class="rs-wrap" id="vd-utms"></div>
+  <h3 style="font-family:var(--disp);font-size:14.5px;margin:20px 0 4px">De qual base saíram as matrículas</h3>
+  <div class="hint" style="margin-bottom:8px">Base do comprador no disparo de venda · "pelo disparo" = recebeu a mensagem de venda antes de pagar · abaixo, por ângulo entre quem está no grupo (em verde, as maiores taxas)</div>
+  <div class="rs-wrap" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;align-items:start">
+    <div id="vd-bases"></div><div id="vd-angulos"></div>
+  </div>
 </div>
 
 <!-- FECHAMENTO DOS DISPAROS (26/10) -->
@@ -682,6 +690,18 @@ function renderVendas(v){
     (v.formas||[]).map(m => `<tr><td>${esc(m.forma)}</td><td>${fmtN(m.compradores)}</td><td>${fmtR0(m.liquido_contratado)}</td></tr>`));
   $("vd-origens").innerHTML = tab("Origem do link", ["Compradores"],
     (v.origens||[]).map(m => `<tr><td>${esc(m.origem)}</td><td>${fmtN(m.compradores)}</td></tr>`));
+  const tc = (v.compradores || 0);
+  const ut = v.utms || [];
+  $("vd-utms").innerHTML = tab("Link (utm_term)", ["Origem", "Compradores", "% das vendas", "Líquido contratado"],
+    ut.map((m, i) => `<tr><td class="${i === 0 ? "ok" : ""}"><b>${esc(m.termo)}</b></td><td class="dim">${esc(m.origem)}</td><td>${fmtN(m.compradores)}</td><td>${fmtPct(pct(m.compradores, tc))}</td><td>${fmtR0(m.liquido_contratado)}</td></tr>`));
+  $("vd-bases").innerHTML = tab("Base", ["Compradores", "Pelo disparo", "Líquido contratado"],
+    (v.bases||[]).map(m => `<tr><td>${esc(m.base)}</td><td>${fmtN(m.compradores)}</td><td>${fmtN(m.via_disparo)}</td><td>${fmtR0(m.liquido_contratado)}</td></tr>`));
+  const an = v.angulos || [];
+  const top = an.filter(a => a.no_grupo >= 30).map(a => pct(a.compradores, a.no_grupo)).sort((a,b) => b-a)[2] ?? 1;
+  $("vd-angulos").innerHTML = tab("Ângulo (no grupo)", ["No grupo", "Compradores", "% comprou", "Líquido contratado"],
+    an.map(a => { const pc = pct(a.compradores, a.no_grupo);
+      return `<tr><td>${esc(a.angulo)} · <span class="dim">${esc(ANG_NOME[a.angulo] || "")}</span></td><td>${fmtN(a.no_grupo)}</td><td>${fmtN(a.compradores)}</td>
+        <td class="${a.no_grupo >= 30 && pc >= top && a.compradores ? "ok" : !a.compradores ? "bad" : ""}">${fmtPct(pc)}</td><td>${a.compradores ? fmtR0(a.liquido_contratado) : "—"}</td></tr>`; }));
 }
 
 function renderAll(d){
