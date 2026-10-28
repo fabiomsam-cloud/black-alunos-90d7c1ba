@@ -330,6 +330,13 @@ footer{color:var(--muted);font-size:11.5px;margin-top:22px;text-align:center}
   <div id="nao-custo"></div>
 </div>
 
+<div class="card">
+  <div class="card-head">
+    <div><h2>Custo por cadastro superior — por campanha</h2><div class="hint">Só campanhas de captação [BLACK][NAOALUNOS] · superior = superior cursando, superior completo ou pós · "no grupo" casado pelo telefone no Sendflow · ordem do custo por superior mais barato para o mais caro · gasto da Meta de hora em hora × cadastros pelo utm_campaign</div></div>
+  </div>
+  <div id="nao-superior"></div>
+</div>
+
 <div class="grid g-two">
   <div class="card">
     <div class="card-head">
@@ -525,6 +532,28 @@ function renderCadastros(c){
     const fora = outros.length ? ` · Fora da tabela (não gera cadastro): ${outros.map(x => `${esc(nomeCamp(x.campanha))} ${fmtR(x.gasto)}`).join(", ")}` : "";
     $(el).innerHTML = t + `</table></div><div class="note">Verde = custo por cadastro até R$ 8 e por entrada até R$ 12 (referência inicial; ajusto quando tivermos a primeira semana). Gasto da Meta gravado pelo n8n de hora em hora${att ? ` (última gravação ${hora(att)})` : ""}; o painel recarrega a cada 2 min.${metaTxt}${fora}</div>`;
   };
+  // 28/10: custo por cadastro superior (qualified) e por superior no grupo — só captação de não alunos
+  (() => {
+    const rows = custo.filter(x => !x.alunos && x.captacao && x.gasto != null);
+    if (!rows.length) { $("nao-superior").innerHTML = `<div class="all-ok">Ainda sem gasto registrado nas campanhas [BLACK][NAOALUNOS].</div>`; return; }
+    const tot = {gasto:0, cadastros:0, superiores:0, sup_grupo:0};
+    for (const x of rows) for (const k in tot) tot[k] += Number(x[k]||0);
+    const media = tot.superiores ? tot.gasto/tot.superiores : null;
+    const cps = x => x.superiores ? x.gasto/x.superiores : Infinity;
+    rows.sort((a,b) => cps(a) - cps(b));
+    const nome = n => nomeCamp(String(n||"").replace(/\[LEADS\]\s*/i, ""));
+    const cor = v => media == null || v == null ? "" : (v <= media ? "ok" : (v > 2*media ? "bad" : "mid"));
+    const linha = (x, lbl, cls) => {
+      const cs = x.superiores ? x.gasto/x.superiores : null;
+      return `<tr${cls ? ` class="${cls}"` : ""}><td>${lbl}</td><td>${fmtR(x.gasto)}</td><td>${fmtN(x.cadastros)}</td><td>${x.cadastros ? fmtR(x.gasto/x.cadastros) : "—"}</td>` +
+        `<td>${fmtN(x.superiores)}</td><td>${fmtPct(pct(x.superiores, x.cadastros))}</td><td class="${cls ? "" : cor(cs)}"><b>${fmtR(cs)}</b></td>` +
+        `<td>${fmtN(x.sup_grupo)}</td><td>${x.sup_grupo ? fmtR(x.gasto/x.sup_grupo) : "—"}</td></tr>`;
+    };
+    let t = `<div class="rs-wrap"><table class="rs"><tr><th>Campanha</th><th>Gasto</th><th>Cadastros</th><th>Custo / cadastro</th><th>Superiores</th><th>% superior</th><th>Custo / superior</th><th>Superior no grupo</th><th>Custo / superior no grupo</th></tr>`;
+    for (const x of rows) t += linha(x, `<span title="${esc(x.campanha_meta || x.campanha)}">${esc(nome(x.campanha))}</span>`);
+    t += linha(tot, "Total", "tot");
+    $("nao-superior").innerHTML = t + `</table></div><div class="note">Verde = custo por superior até a média (${fmtR(media)}) · vermelho = mais que o dobro da média. Cada cadastro conta para a campanha do link que a pessoa clicou; cadastros sem utm_campaign ficam de fora. Parte do público das Polícias presta concurso de nível médio: para ela, o custo por cadastro também vale.</div>`;
+  })();
   renderCusto(custo.filter(x => !x.alunos), "nao-custo", "Ainda sem gasto registrado nas campanhas [BLACK][NAOALUNOS] — o n8n grava o gasto da Meta de hora em hora.");
   renderCusto(custo.filter(x => x.alunos), "al-custo", "Ainda sem gasto registrado na campanha [BLACK][ALUNOS] — o n8n grava o gasto da Meta de hora em hora.");
 
