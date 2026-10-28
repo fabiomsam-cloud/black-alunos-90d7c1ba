@@ -167,6 +167,18 @@ footer{color:var(--muted);font-size:11.5px;margin-top:22px;text-align:center}
   </div>
 </div>
 
+<!-- TESTE DOMINEI 48h (28/10) -->
+<div class="card">
+  <div class="card-head">
+    <div><h2>Teste do Dominei por 48 horas</h2><div class="hint">Pop-up na área do aluno do portal (desde <b>28/10</b>): o aluno pede o teste, ganha um link pessoal e a Anne acompanha por 48 h · nunca aparece para quem comprou a Tríade · progresso atualizado a cada 10 min · abaixo, o piloto por disparo (ângulos 1, 2, 4 e 7a) com grupo de controle</div></div>
+    <span class="bdg running">NO AR</span>
+  </div>
+  <div class="kpis" id="dm-kpis"></div>
+  <div class="vd-grid" style="margin-top:14px">
+    <div id="dm-dias"></div><div id="dm-piloto"></div>
+  </div>
+</div>
+
 <!-- VENDAS DA TRÍADE (27/10) -->
 <div class="card">
   <div class="card-head">
@@ -675,6 +687,25 @@ function renderFechamento(d){
   $("fch-testes").innerHTML = u + `</table>`;
 }
 
+function renderDominei(d){
+  if (!d) return;
+  const p = d.popup || {};
+  $("dm-kpis").innerHTML = [
+    ["Pediram o teste no pop-up", fmtN(p.cadastrados), fmtN(p.hoje) + " hoje · " + fmtN(p.ultima_hora) + " na última hora", "hi"],
+    ["Criaram a conta no Dominei", fmtN(p.conta), fmtPct(pct(p.conta, p.cadastrados)) + " dos que pediram", ""],
+    ["Concluíram o teste (viram o cérebro)", fmtN(p.teste_concluido), fmtPct(pct(p.teste_concluido, p.cadastrados)), ""],
+    ["Fizeram sessão · subiram material", fmtN(p.com_sessao) + " · " + fmtN(p.com_material), "no Dominei", ""],
+    ["Receberam a oferta", fmtN(p.oferta_enviada), "depois das 48 h", ""],
+    ["Compraram a Tríade", fmtN(p.compraram), fmtPct(pct(p.compraram, p.cadastrados)) + " dos que pediram", "ok"],
+  ].map(([l,v,sub,cls]) => `<div class="tk ${cls}"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${sub}</div></div>`).join("");
+  const tab = (tit, cols, rows) => `<table class="rs"><tr>${[tit, ...cols].map(c => `<th>${c}</th>`).join("")}</tr>${rows.join("") || `<tr><td colspan="${cols.length+1}" class="dim">ainda sem dados</td></tr>`}</table>`;
+  $("dm-dias").innerHTML = tab("Pop-up · por dia", ["Pediram", "Criaram conta", "Compraram"],
+    (p.por_dia||[]).map(x => `<tr><td>${ddmm(x.dia)}</td><td>${fmtN(x.cadastrados)}</td><td>${fmtN(x.conta)}</td><td>${fmtN(x.compraram)}</td></tr>`));
+  const BR = {teste: "Teste (recebeu o link)", controle: "Controle (só a oferta)"};
+  $("dm-piloto").innerHTML = tab("Piloto por disparo", ["Pessoas", "Conta", "Teste", "Sessão", "Material", "Compraram", "% compra"],
+    (d.piloto||[]).map(x => `<tr><td>${esc(BR[x.braco] || x.braco)}</td><td>${fmtN(x.pessoas)}</td><td>${fmtN(x.conta)}</td><td>${fmtN(x.teste_concluido)}</td><td>${fmtN(x.com_sessao)}</td><td>${fmtN(x.com_material)}</td><td>${fmtN(x.compraram)}</td><td>${fmtPct(pct(x.compraram, x.pessoas))}</td></tr>`));
+}
+
 const MOMENTO = {antes: "Antes da live", live: "Durante a live (até 20h33)", disparo: "Depois do disparo de venda (20h33)"};
 function renderVendas(v){
   if (!v) return;
@@ -712,6 +743,7 @@ function renderAll(d){
   renderRail(d);
   try { renderCadastros(d.cadastros_painel); } catch (e) { console.error("cadastros", e); }
   try { renderVsl(d.vsl); } catch (e) { console.error("vsl", e); }
+  try { renderDominei(d.dominei); } catch (e) { console.error("dominei", e); }
   try { renderVendas(d.vendas); } catch (e) { console.error("vendas", e); }
   try { renderFechamento(d); } catch (e) { console.error("fechamento", e); }
   const base = Object.fromEntries((d.base||[]).map(b => [b.angulo, b]));
