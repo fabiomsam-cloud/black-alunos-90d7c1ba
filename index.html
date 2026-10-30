@@ -337,21 +337,13 @@ footer{color:var(--muted);font-size:11.5px;margin-top:22px;text-align:center}
   <div id="nao-superior"></div>
 </div>
 
-<div class="grid g-two">
-  <div class="card">
-    <div class="card-head">
-      <div><h2>Cadastros por origem</h2><div class="hint">Campanha → conjunto → criativo (utm_campaign / utm_term / utm_content) · pop-ups e orgânico aparecem como fonte</div></div>
-    </div>
-    <div class="rs-wrap"><table class="rs" id="nao-origens"></table></div>
-  </div>
-  <div class="card">
+<div class="card">
     <div class="card-head">
       <div><h2>Entradas no grupo por dia</h2><div class="hint">Webhook da Sendflow · dia calendário de Manaus · barra amarela = cadastros do dia</div></div>
     </div>
     <div class="vday" id="nao-vday"></div>
     <div class="legend"><span><i style="background:var(--cyan)"></i>entrou vindo da página</span><span><i style="background:#cbd5e1"></i>entrou por fora (link direto)</span><span><i style="background:#ffd166"></i>cadastros na página</span></div>
     <div class="note" id="nao-saidas"></div>
-  </div>
 </div>
 
 <div class="card">
@@ -557,7 +549,6 @@ function renderCadastros(c){
   renderCusto(custo.filter(x => !x.alunos), "nao-custo", "Ainda sem gasto registrado nas campanhas [BLACK][NAOALUNOS] — o n8n grava o gasto da Meta de hora em hora.");
   renderCusto(custo.filter(x => x.alunos), "al-custo", "Ainda sem gasto registrado na campanha [BLACK][ALUNOS] — o n8n grava o gasto da Meta de hora em hora.");
 
-  $("nao-origens").innerHTML = (na.origens||[]).length ? linhasOrig(na.origens, true) : `<tr><td>Nenhum cadastro ainda.</td></tr>`;
 
   // entradas por dia (da página × fora) + cadastros do dia
   const ent = Object.fromEntries((na.entradas_dia||[]).map(e => [e.dia, e]));
