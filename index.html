@@ -323,6 +323,26 @@ footer{color:var(--muted);font-size:11.5px;margin-top:22px;text-align:center}
   <div class="kpis" id="nao-kpis" style="margin-top:12px"></div>
 </div>
 
+<div class="card" id="card-cerebro">
+  <div class="card-head">
+    <div><h2>Cérebro · Dominei grátis até 10/11 08h</h2><div class="hint" id="cb-hint">Convite pelo WhatsApp (T1) → abriu /cerebro → viu o vídeo → formulário aos 50 s → criou a conta no Dominei → escolheu o edital → diagnóstico → sessão → Meu Material · progresso lido do Dominei a cada 5 min · régua T1–T6 (n8n)</div></div>
+  </div>
+  <div class="funnel" id="cb-funil"></div>
+  <div class="kpis" id="cb-kpis" style="margin-top:12px"></div>
+  <div class="note" id="cb-nota"></div>
+</div>
+
+<div class="grid g-two">
+  <div class="card">
+    <div class="card-head"><div><h2>Editais escolhidos no Cérebro</h2><div class="hint">Quem criou a conta e escolheu o concurso · ordem por contas · diagnóstico, sessão e material por edital</div></div></div>
+    <div class="rs-wrap"><table class="rs" id="cb-editais" style="min-width:0"></table></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><div><h2>Cérebro por dia</h2><div class="hint">Dia calendário de Manaus · convidados (T1), abriram a página, contas criadas, primeiras sessões</div></div></div>
+    <div class="rs-wrap"><table class="rs" id="cb-dias" style="min-width:0"></table></div>
+  </div>
+</div>
+
 <div class="card">
   <div class="card-head">
     <div><h2>Custo por cadastro e por entrada no grupo — por campanha</h2><div class="hint">Só campanhas [BLACK][NAOALUNOS] · gasto da Meta (meta_ads_insights, atualizado de hora em hora) × cadastros e entradas atribuídos pelo utm_campaign · Leads (Meta) e Connect vêm da API da Meta como no Gerenciador · casamento ignora as tags [LEADS]/[META] do nome</div></div>
@@ -763,9 +783,35 @@ function renderVendas(v){
         <td class="${a.no_grupo >= 30 && pc >= top && a.compradores ? "ok" : !a.compradores ? "bad" : ""}">${fmtPct(pc)}</td><td>${a.compradores ? fmtR0(a.liquido_contratado) : "—"}</td></tr>`; }));
 }
 
+
+// ---------- CÉREBRO (Dominei grátis p/ não alunos, 02/11) ----------
+function renderCerebro(x){
+  if (!x || !$("cb-funil")) return;
+  const f = x.funil || {}, r = x.regua || {};
+  const base = Math.max(1, f.convidados || f.base || 0);
+  const etapas = [["Base", f.base, null], ["Convidados (T1)", f.convidados, f.base], ["Abriram a página", f.abriram, f.convidados], ["Viram o vídeo", f.video_25, f.abriram],
+    ["Formulário liberado", f.formulario, f.abriram], ["Criaram a conta", f.conta, f.convidados], ["Escolheram o edital", f.edital, f.conta], ["Diagnóstico", f.diag, f.conta], ["1ª sessão", f.sessao, f.conta], ["Meu Material", f.material, f.conta]];
+  $("cb-funil").innerHTML = etapas.map(([l,v,b]) => `<div class="st"><div class="l">${l}</div><div class="v">${fmtN(v)}</div><div class="p">${b ? fmtPct(pct(v,b)) : "&nbsp;"}</div><div class="fill" style="width:${Math.round(100*Math.min(1,(v||0)/base))}%"></div></div>`).join("");
+  $("cb-kpis").innerHTML = [
+    ["Contas hoje", fmtN(f.hoje_contas), "criadas hoje (Manaus)"],
+    ["Convite → conta", fmtPct(pct(f.conta, f.convidados)), `${fmtN(f.conta)} de ${fmtN(f.convidados)} · meta: acima dos 6% do piloto`],
+    ["Conta → sessão", fmtPct(pct(f.sessao, f.conta)), "métrica da semana"],
+    ["Já tinham conta", fmtN(f.conta_existia), `entraram pela mesma página · ${fmtN(f.ja_ativos)} com assinatura ativa ficaram fora do T1`],
+    ["Régua", `${fmtN(r.t1)} · ${fmtN(r.t2)} · ${fmtN(r.t3)} · ${fmtN(r.t4)}`, `T1 · T2 · T3 · T4 enviados · T5 ${fmtN(r.t5)} · T6 ${fmtN(r.t6)} · ${fmtN(r.falhas)} falhas · ${fmtN(r.optout)} opt-out`],
+    ["Aulas", `${fmtN((x.aulas||{}).aulas)}`, `${fmtN((x.aulas||{}).editais_com_aula)} editais com aula · ${fmtN(x.aulas_vistas)} pessoas abriram /aulas`],
+  ].map(([l,v,s]) => `<div class="tk"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("");
+  $("cb-nota").innerHTML = (x.base_liberada_em ? `Convites da base liberados em ${hora(x.base_liberada_em)}.` : `<span class="late">Régua ARMADA e muda: os convites da base só saem depois do OK (cerebro_config.base_liberada_em).</span>`) +
+    ` Progresso do Dominei lido pela última vez: ${x.progresso_em ? hora(x.progresso_em) : "<span class=\"late\">nunca (edge cerebro ainda não publicada)</span>"}. Fecha em ${hora(x.fim)} (Manaus).`;
+  const tab = (tit, cols, rows) => `<tr>${[tit, ...cols].map(c => `<th>${c}</th>`).join("")}</tr>${rows.join("") || `<tr><td colspan="${cols.length+1}" class="dim">ainda sem dados</td></tr>`}`;
+  $("cb-editais").innerHTML = tab("Edital", ["Contas", "Diagnóstico", "Sessão", "Material"],
+    (x.editais||[]).map(e => `<tr><td>${esc(e.edital)}</td><td>${fmtN(e.contas)}</td><td>${fmtN(e.diag)}</td><td>${fmtN(e.sessao)}</td><td>${fmtN(e.material)}</td></tr>`));
+  $("cb-dias").innerHTML = tab("Dia", ["Convidados", "Abriram", "Contas", "Sessões"],
+    (x.por_dia||[]).map(d => `<tr><td>${ddmm(String(d.dia))}</td><td>${fmtN(d.convidados)}</td><td>${fmtN(d.abriram)}</td><td>${fmtN(d.contas)}</td><td>${fmtN(d.sessoes)}</td></tr>`));
+}
 function renderAll(d){
   renderRail(d);
   try { renderCadastros(d.cadastros_painel); } catch (e) { console.error("cadastros", e); }
+  try { renderCerebro((d.cadastros_painel||{}).cerebro); } catch (e) { console.error("cerebro", e); }
   try { renderVsl(d.vsl); } catch (e) { console.error("vsl", e); }
   try { renderDominei(d.dominei); } catch (e) { console.error("dominei", e); }
   try { renderVendas(d.vendas); } catch (e) { console.error("vendas", e); }
