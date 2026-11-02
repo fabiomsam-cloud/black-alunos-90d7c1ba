@@ -332,6 +332,18 @@ footer{color:var(--muted);font-size:11.5px;margin-top:22px;text-align:center}
   <div class="note" id="cb-nota"></div>
 </div>
 
+
+<div class="card" id="card-cerebro-disparos">
+  <div class="card-head">
+    <div><h2>Disparos do Cérebro · etapa "Cadastro no Dominei"</h2><div class="hint" id="cbd-hint">Base da Revolução convidada por WhatsApp (T1, 300 a cada 5 min a partir de terça 03/11 07h) e os toques seguintes (T2 sem conta · T3 sem sessão · T4 sem material · T5 véspera · T6 fechou) · por passo: enviados, falhas, opt-out e o que aconteceu DEPOIS do toque (abriu a página, criou conta, fez sessão)</div></div>
+  </div>
+  <div class="kpis" id="cbd-camadas" style="margin-bottom:12px"></div>
+  <div class="grid g-two">
+    <div class="rs-wrap"><table class="rs" id="cbd-passos" style="min-width:0"></table></div>
+    <div class="rs-wrap"><table class="rs" id="cbd-camadas-t1" style="min-width:0"></table></div>
+  </div>
+  <div class="rs-wrap" style="margin-top:12px"><table class="rs" id="cbd-horas" style="min-width:0"></table></div>
+</div>
 <div class="grid g-two">
   <div class="card">
     <div class="card-head"><div><h2>Editais escolhidos no Cérebro</h2><div class="hint">Quem criou a conta e escolheu o concurso · ordem por contas · diagnóstico, sessão e material por edital</div></div></div>
@@ -808,10 +820,34 @@ function renderCerebro(x){
   $("cb-dias").innerHTML = tab("Dia", ["Convidados", "Abriram", "Contas", "Sessões"],
     (x.por_dia||[]).map(d => `<tr><td>${ddmm(String(d.dia))}</td><td>${fmtN(d.convidados)}</td><td>${fmtN(d.abriram)}</td><td>${fmtN(d.contas)}</td><td>${fmtN(d.sessoes)}</td></tr>`));
 }
+
+function renderCerebroDisparos(d){
+  if (!d || !$("cbd-passos")) return;
+  const c = d.camadas || {};
+  const quando = d.base_liberada_em ? hora(d.base_liberada_em) : "—";
+  const futuro = d.base_liberada_em && Date.parse(d.base_liberada_em) > Date.now();
+  $("cbd-camadas").innerHTML = [
+    ["Aptos ao convite (T1)", fmtN(c.aptos), futuro ? `saem a partir de ${quando}` : `liberado em ${quando}`, futuro ? "hi" : "ok"],
+    ["Camada 1 · no grupo", fmtN(c.no_grupo), "recebem primeiro", ""],
+    ["Camada 2 · fora do grupo", fmtN(c.fora_do_grupo), "cadastraram e não entraram", ""],
+    ["Escolaridade superior", fmtN(c.superior), fmtPct(pct(c.superior, c.aptos)) + " dos aptos", ""],
+    ["Excluídos", fmtN((c.excluidos_optout||0)+(c.excluidos_ja_ativo||0)+(c.excluidos_ja_conta||0)+(c.sem_telefone||0)), `${fmtN(c.excluidos_optout)} opt-out · ${fmtN(c.excluidos_ja_ativo)} já têm acesso ativo · ${fmtN(c.excluidos_ja_conta)} já criaram conta · ${fmtN(c.sem_telefone)} sem telefone`, ""],
+  ].map(([l,v,s,cls]) => `<div class="tk ${cls}"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("");
+  const tab = (tit, cols, rows) => `<tr>${[tit, ...cols].map(x => `<th>${x}</th>`).join("")}</tr>${rows.join("") || `<tr><td colspan="${cols.length+1}" class="dim">ainda sem envios</td></tr>`}`;
+  const NOME = {T1:"T1 · convite", T2:"T2 · sem conta", T3:"T3 · sem sessão", T4:"T4 · aula", T5:"T5 · véspera", T6:"T6 · fechou"};
+  $("cbd-passos").innerHTML = tab("Passo", ["Enviados", "Falhas", "Opt-out", "Abriram depois", "Contas depois", "Sessões depois", "Último"],
+    (d.por_passo||[]).filter(p => p.enviados || p.falhas || p.optout).map(p => `<tr><td>${NOME[p.passo]||p.passo}</td><td>${fmtN(p.enviados)}</td><td class="${p.falhas ? "mid" : ""}">${fmtN(p.falhas)}</td><td>${fmtN(p.optout)}</td><td>${fmtN(p.abriram_depois)} <small class="dim">${fmtPct(pct(p.abriram_depois, p.enviados))}</small></td><td>${fmtN(p.contas_depois)} <small class="dim">${fmtPct(pct(p.contas_depois, p.enviados))}</small></td><td>${fmtN(p.sessoes_depois)}</td><td class="dim">${hora(p.ultimo_em)}</td></tr>`));
+  const k = d.t1_por_camada || {}; const CN = {no_grupo:"No grupo", fora_do_grupo:"Fora do grupo", superior:"Superior", nao_superior:"Não superior"};
+  $("cbd-camadas-t1").innerHTML = tab("T1 por camada", ["Enviados", "Abriram", "% abriu", "Contas", "% conta"],
+    Object.keys(CN).filter(x => k[x] && k[x].enviados).map(x => `<tr><td>${CN[x]}</td><td>${fmtN(k[x].enviados)}</td><td>${fmtN(k[x].abriram)}</td><td>${fmtPct(pct(k[x].abriram, k[x].enviados))}</td><td>${fmtN(k[x].contas)}</td><td>${fmtPct(pct(k[x].contas, k[x].enviados))}</td></tr>`));
+  $("cbd-horas").innerHTML = tab("T1 hoje · hora (Manaus)", ["Enviados", "Abriram", "Contas"],
+    (d.por_hora_hoje||[]).map(h => `<tr><td>${h.hora}h</td><td>${fmtN(h.enviados)}</td><td>${fmtN(h.abriram)}</td><td>${fmtN(h.contas)}</td></tr>`));
+}
 function renderAll(d){
   renderRail(d);
   try { renderCadastros(d.cadastros_painel); } catch (e) { console.error("cadastros", e); }
   try { renderCerebro((d.cadastros_painel||{}).cerebro); } catch (e) { console.error("cerebro", e); }
+  try { renderCerebroDisparos(((d.cadastros_painel||{}).cerebro||{}).disparos); } catch (e) { console.error("cerebro disparos", e); }
   try { renderVsl(d.vsl); } catch (e) { console.error("vsl", e); }
   try { renderDominei(d.dominei); } catch (e) { console.error("dominei", e); }
   try { renderVendas(d.vendas); } catch (e) { console.error("vendas", e); }
