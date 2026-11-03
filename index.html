@@ -380,7 +380,14 @@ footer{color:var(--muted);font-size:11.5px;margin-top:22px;text-align:center}
 
 <div class="card">
   <div class="card-head">
-    <div><h2>Teste v2b × v2c · rodízio</h2><div class="hint" id="nao-teste-hint">Fase 2 (desde 28/10 11h): só v2b e v2c, 50% cada · fixo por visitante · visitantes únicos · a decisão é pela % que entrou no grupo</div></div>
+    <div><h2>Teste v2b × v6 (explicativa do Cérebro) · rodízio</h2><div class="hint" id="nao-v6-hint">Fase 3: v2b e v6, 50% cada · conta só a partir da publicação da v6 · a v6 leva mais gente a ler antes do cadastro: compare a qualidade (grupo, conta no Cérebro, sessão), não só o volume</div></div>
+  </div>
+  <div class="rs-wrap"><table class="rs" id="nao-v6" style="min-width:0"></table></div>
+</div>
+
+<div class="card">
+  <div class="card-head">
+    <div><h2>Teste v2b × v2c · rodízio (fase 2, encerrada 03/11)</h2><div class="hint" id="nao-teste-hint">Fase 2 (desde 28/10 11h): só v2b e v2c, 50% cada · fixo por visitante · visitantes únicos · a decisão é pela % que entrou no grupo</div></div>
   </div>
   <div class="rs-wrap"><table class="rs" id="nao-teste" style="min-width:0"></table></div>
 </div>
@@ -843,8 +850,22 @@ function renderCerebroDisparos(d){
   $("cbd-horas").innerHTML = tab("T1 hoje · hora (Manaus)", ["Enviados", "Abriram", "Contas"],
     (d.por_hora_hoje||[]).map(h => `<tr><td>${h.hora}h</td><td>${fmtN(h.enviados)}</td><td>${fmtN(h.abriram)}</td><td>${fmtN(h.contas)}</td></tr>`));
 }
+// 03/11: fase 3 do rodízio (v2b × v6 explicativa do Cérebro) — por visitante, do grupo até a sessão no Cérebro; 🏆 pela % de visitantes que criou conta (≥200 visitantes)
+function renderTesteV6(t){
+  if (!t || !$("nao-v6")) return;
+  const ps = t.paginas || [], totV = ps.reduce((s, x) => s + (x.visitantes || 0), 0);
+  const eleg = ps.filter(x => (x.visitantes || 0) >= 200), best = eleg.length ? Math.max(...eleg.map(x => pct(x.conta, x.visitantes) || 0)) : null;
+  $("nao-v6-hint").textContent = (t.inicio ? `Desde ${hora(t.inicio)} · ` : "Ainda não publicada · ") +
+    `${fmtN(totV)} visitantes · v2b e v6, 50% cada · % sobre visitantes · decisão pela % que criou conta no Cérebro e fez sessão, não só pelo volume de cadastro`;
+  const v = (n, b) => `${fmtN(n)} <small class="dim">${fmtPct(pct(n, b))}</small>`;
+  $("nao-v6").innerHTML = `<tr><th>Página</th><th>Visitantes</th><th>Cadastros</th><th>Superior</th><th>No grupo</th><th>Conta no Cérebro</th><th>Diagnóstico</th><th>Sessão</th><th>Conta / cadastro</th><th>Hoje</th></tr>` + ps.map(x => {
+    const top = best != null && best > 0 && (x.visitantes || 0) >= 200 && pct(x.conta, x.visitantes) === best;
+    return `<tr><td>${top ? "🏆 " : ""}<a href="https://revolucaodoestudo.com.br/${esc(x.versao)}/" target="_blank" rel="noopener" style="color:inherit">${esc(x.versao)}</a></td><td>${fmtN(x.visitantes)}</td><td>${v(x.cadastros, x.visitantes)}</td><td>${v(x.superior, x.cadastros)}</td><td>${v(x.no_grupo, x.visitantes)}</td><td><b>${v(x.conta, x.visitantes)}</b></td><td>${fmtN(x.diag)}</td><td>${v(x.sessao, x.visitantes)}</td><td>${fmtPct(pct(x.conta, x.cadastros))}</td><td>${fmtN(x.hoje)}</td></tr>`;
+  }).join("") || `<tr><td>—</td></tr>`;
+}
 function renderAll(d){
   renderRail(d);
+  try { renderTesteV6(((d.cadastros_painel||{}).cerebro||{}).teste_v6); } catch (e) { console.error("teste v6", e); }
   try { renderCadastros(d.cadastros_painel); } catch (e) { console.error("cadastros", e); }
   try { renderCerebro((d.cadastros_painel||{}).cerebro); } catch (e) { console.error("cerebro", e); }
   try { renderCerebroDisparos(((d.cadastros_painel||{}).cerebro||{}).disparos); } catch (e) { console.error("cerebro disparos", e); }
