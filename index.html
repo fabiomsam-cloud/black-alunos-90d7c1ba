@@ -139,7 +139,7 @@ footer{color:var(--muted);font-size:11.5px;margin-top:22px;text-align:center}
   <div class="stamp">
     <div class="clock" id="clock">—</div>
     <div class="upd">último dado: <b id="upd">carregando…</b></div>
-    <div>fuso America/Manaus · grupo em tempo real · disparos a cada 5 min</div>
+    <div>fuso America/Manaus · atualizado 1 vez por dia, às 06h30</div>
   </div>
 </header>
 
@@ -1074,15 +1074,17 @@ function renderAll(d){
 
   // saúde
   const s = d.sync||{};
-  const late = ts => ts && (Date.now() - Date.parse(ts)) > 3*3600e3;
+  // 05/11: painel diário — "atrasado" é medido contra a hora da carga (generated_at), não contra o relógio de quem abre
+  const late = ts => ts && (Date.parse(d.generated_at) - Date.parse(ts)) > 3*3600e3;
   $("sync").innerHTML = [
     ["Campanhas da Anne", s.disparos_at], ["Envios", s.recipients_at], ["Respostas dos alunos", s.contatos_at],
     ["Último evento da Sendflow", s.inbox_sendflow_at], ["Última entrada no grupo da Black", s.membros_at],
   ].map(([l, ts]) => `<span>${l}: <b class="${late(ts) && l !== "Última entrada no grupo da Black" ? "late" : ""}">${hora(ts)}</b></span>`).join("");
 }
 
+// 05/11: sem recarga automática. O painel é calculado 1 vez por dia (06h30 de Manaus) e guardado no banco;
+//   abrir a página só lê o resultado pronto. Pedido do Fábio para aliviar o Data Core.
 load();
-setInterval(load, 120000); // 2 min — entrada no grupo é em tempo real no banco
 </script>
 </body>
 </html>
