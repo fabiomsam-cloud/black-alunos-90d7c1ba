@@ -348,11 +348,11 @@ footer{color:var(--muted);font-size:11.5px;margin-top:22px;text-align:center}
 <!-- 04/11: DISPAROS PARA LEADS QUENTES (fora da base da Revolução) · por camada, no padrão do funil por ângulo dos alunos -->
 <div class="card" id="card-disp-leads">
   <div class="card-head">
-    <div><h2>Disparos para leads quentes · por camada</h2><div class="hint" id="dl-hint">Leads que ainda não estavam na Revolução: webinários, conversas com a Anne, captação e grupos das frentes · cada telefone em uma única camada (a mais quente) · tudo conta a partir do PRIMEIRO envio: respondeu à Anne, abriu /cerebro, criou conta, fez sessão, entrou no grupo · fora da base: alunos, opt-out, vendedor humano, Jev D/X e quem já estava na Revolução</div></div>
+    <div><h2>Disparos para leads quentes · por camada</h2><div class="hint" id="dl-hint">Leads que ainda não estavam na Revolução: webinários, conversas com a Anne, captação e grupos das frentes · cada telefone em uma única camada (a mais quente) · botão leva ao GRUPO; quem entra recebe o acesso ao Cérebro 5 min depois (régua T1) · tudo conta a partir do PRIMEIRO envio: respondeu à Anne, entrou no grupo, abriu /cerebro, criou conta, fez sessão · fora da base: alunos, opt-out, vendedor humano, Jev D/X e quem já estava na Revolução</div></div>
   </div>
   <div class="kpis" id="dl-kpis" style="margin-bottom:12px"></div>
   <div class="rs-wrap"><table class="rs" id="dl-funil"></table></div>
-  <div class="note">Gate das camadas frias: conta criada sobre enviados em verde a partir de 5%, amarelo de 3% a 5%, vermelho abaixo de 3%. A barra é a % de conta criada. "Em conversa" = estava com um agente da Anne no dia da montagem (só recebe com a opção ignorar conversa com IA).</div>
+  <div class="note">Gate das camadas frias: entrada no grupo sobre enviados em verde a partir de 6%, amarelo de 3% a 6%, vermelho abaixo de 3%. A barra é a % que entrou no grupo. "Em conversa" = estava com um agente da Anne no dia da montagem (só recebe com a opção ignorar conversa com IA).</div>
   <h3 style="margin:18px 0 8px;font-size:14px">Campanhas de disparo</h3>
   <div id="dl-campanhas"></div>
   <div class="rs-wrap" style="margin-top:12px"><table class="rs" id="dl-dias" style="min-width:0"></table></div>
@@ -877,32 +877,33 @@ function renderDispLeads(x){
     ["Enviados", fmtN(env), env ? `${fmtPct(pct(env, fones))} da base · ${fmtN(t.mensagens)} mensagens` : "primeiro envio: camadas 1 a 4"],
     ["Responderam à Anne", fmtN(resp), env ? fmtPct(pct(resp, env)) + " dos enviados" : "—"],
     ["Abriram /cerebro", fmtN(abr), env ? fmtPct(pct(abr, env)) + " dos enviados" : "—"],
-    ["Criaram conta", fmtN(cont), env ? `${fmtPct(pct(cont, env))} dos enviados · ${fmtN(ses)} fizeram sessão` : "métrica do gate"],
+    ["Entraram no grupo", fmtN(gr), env ? fmtPct(pct(gr, env)) + " dos enviados · métrica do gate" : "métrica do gate"],
+    ["Criaram conta no Cérebro", fmtN(cont), env ? `${fmtPct(pct(cont, env))} dos enviados · ${fmtN(ses)} fizeram sessão` : "acesso chega 5 min depois de entrar no grupo"],
     ["Opt-out", fmtN(t.optouts), env ? `${fmtPct(pct(t.optouts, env))} · trava em 3% · ${fmtN(t.falhas)} falhas` : "trava em 3%"],
   ].map(([l, v, s]) => `<div class="tk"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("");
-  const cor = p => p == null ? "" : p >= 0.05 ? "ok" : p >= 0.03 ? "mid" : "bad";
-  const maxP = Math.max(0.01, ...cs.map(c => pct(c.contas, c.enviados) || 0));
+  const cor = p => p == null ? "" : p >= 0.06 ? "ok" : p >= 0.03 ? "mid" : "bad";
+  const maxP = Math.max(0.01, ...cs.map(c => pct(c.grupo, c.enviados) || 0));
   const v = (n, b) => b ? `${fmtN(n)} <small class="dim">${fmtPct(pct(n, b))}</small>` : "—";
-  let r = `<tr><th>Camada</th><th>Telefones</th><th>Em conversa</th><th>Enviados</th><th>Responderam</th><th>Abriram /cerebro</th><th>Criaram conta</th><th>% conta</th><th>Sessão</th><th>Entraram no grupo</th></tr>`;
+  let r = `<tr><th>Camada</th><th>Telefones</th><th>Em conversa</th><th>Enviados</th><th>Responderam</th><th>Entraram no grupo</th><th>% grupo</th><th>Abriram /cerebro</th><th>Criaram conta</th><th>Sessão</th></tr>`;
   for (const c of cs){
-    const pc = pct(c.contas, c.enviados), dim = c.enviados ? "" : " dim";
+    const pc = pct(c.grupo, c.enviados), dim = c.enviados ? "" : " dim";
     r += `<tr><td>${esc(c.camada)} · ${esc(c.nome)}</td><td class="${dim}">${fmtN(c.fones)}</td><td class="${dim}">${fmtN(c.em_ia)}</td><td>${c.enviados ? fmtN(c.enviados) : "—"}</td>
-      <td>${v(c.respostas, c.enviados)}</td><td>${v(c.abriram, c.enviados)}</td><td>${c.enviados ? fmtN(c.contas) : "—"}</td>
+      <td>${v(c.respostas, c.enviados)}</td><td>${c.enviados ? fmtN(c.grupo) : "—"}</td>
       <td class="${cor(c.enviados ? pc : null)}">${c.enviados ? `<span class="bar" style="width:${Math.round(60 * (pc || 0) / maxP)}px"></span>${fmtPct(pc)}` : "—"}</td>
-      <td>${v(c.sessoes, c.enviados)}</td><td>${v(c.grupo, c.enviados)}</td></tr>`;
+      <td>${v(c.abriram, c.enviados)}</td><td>${v(c.contas, c.enviados)}</td><td>${v(c.sessoes, c.enviados)}</td></tr>`;
   }
-  r += `<tr class="tot"><td>Total</td><td>${fmtN(fones)}</td><td>${fmtN(sum("em_ia"))}</td><td>${fmtN(env)}</td><td>${v(resp, env)}</td><td>${v(abr, env)}</td><td>${fmtN(cont)}</td><td>${fmtPct(pct(cont, env))}</td><td>${v(ses, env)}</td><td>${v(gr, env)}</td></tr>`;
+  r += `<tr class="tot"><td>Total</td><td>${fmtN(fones)}</td><td>${fmtN(sum("em_ia"))}</td><td>${fmtN(env)}</td><td>${v(resp, env)}</td><td>${fmtN(gr)}</td><td>${fmtPct(pct(gr, env))}</td><td>${v(abr, env)}</td><td>${v(cont, env)}</td><td>${v(ses, env)}</td></tr>`;
   $("dl-funil").innerHTML = r;
   const camps = x.campanhas || [];
   if (!camps.length) $("dl-campanhas").innerHTML = `<div class="all-ok">Nenhuma campanha [BLACK][NAOALUNOS] na Anne ainda — o primeiro envio é das camadas 1 a 4.</div>`;
   else {
-    let t2 = `<div class="rs-wrap"><table class="rs"><tr><th>Campanha</th><th>Status</th><th>Base</th><th>Enviados</th><th>Pendentes</th><th>Pulados</th><th>Falhas</th><th>Opt-out</th><th>Responderam</th><th>Abriram</th><th>Contas</th><th>% conta</th><th>Sessão</th><th>Início</th></tr>`;
+    let t2 = `<div class="rs-wrap"><table class="rs"><tr><th>Campanha</th><th>Status</th><th>Base</th><th>Enviados</th><th>Pendentes</th><th>Pulados</th><th>Falhas</th><th>Opt-out</th><th>Responderam</th><th>No grupo</th><th>% grupo</th><th>Contas</th><th>Sessão</th><th>Início</th></tr>`;
     for (const c of camps){
-      const pc = pct(c.contas, c.sent);
+      const pc = pct(c.grupo, c.sent);
       t2 += `<tr><td title="${esc(c.template || "")}">${esc(c.name)}</td><td><span class="bdg ${esc(c.status)}">${esc(c.status)}</span></td>
         <td>${fmtN(c.total)}</td><td>${fmtN(c.sent)}</td><td>${fmtN(c.pending)}</td><td>${fmtN((c.skipped_existing || 0) + (c.skipped_optout || 0))}</td>
         <td class="${c.failed ? "bad" : ""}">${fmtN(c.failed)}</td><td class="${pct(c.optout_novos, c.sent) > 0.03 ? "bad" : ""}">${fmtN(c.optout_novos)} <small class="dim">${fmtPct(pct(c.optout_novos, c.sent))}</small></td>
-        <td>${v(c.respostas, c.sent)}</td><td>${v(c.abriram, c.sent)}</td><td>${fmtN(c.contas)}</td><td class="${cor(c.sent ? pc : null)}">${fmtPct(pc)}</td><td>${fmtN(c.sessoes)}</td>
+        <td>${v(c.respostas, c.sent)}</td><td>${fmtN(c.grupo)}</td><td class="${cor(c.sent ? pc : null)}">${fmtPct(pc)}</td><td>${fmtN(c.contas)}</td><td>${fmtN(c.sessoes)}</td>
         <td>${hora(c.first_sent_at || c.started_at || c.scheduled_at)}</td></tr>`;
     }
     $("dl-campanhas").innerHTML = t2 + `</table></div>`;
